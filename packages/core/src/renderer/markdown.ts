@@ -327,17 +327,31 @@ export class MarkdownRenderer extends BaseRenderer {
       content += node.checked ? '[x] ' : '[ ] ';
     }
     
-    // Add children
+    // Process children
     if (node.children && node.children.length > 0) {
-      const childrenContent = node.children.map(child => {
-        const rendered = this.renderNode(child, options);
-        // Indent all lines except the first one
-        return rendered.split('\n').map((line, i) => 
-          i === 0 ? line : `${indent}${line}`
-        ).join('\n');
-      }).join('');
+      // First, handle non-list children
+      const textNodes = node.children.filter(child => child.type !== 'list');
+      if (textNodes.length > 0) {
+        const textContent = textNodes.map(child => this.renderNode(child, options)).join('');
+        content += textContent;
+      }
       
-      content += childrenContent;
+      // Then, handle nested lists with proper indentation
+      const listNodes = node.children.filter(child => child.type === 'list');
+      if (listNodes.length > 0) {
+        const nestedListContent = listNodes.map(list => {
+          // Create a new options object with increased indentation for nested lists
+          const nestedOptions = { ...options, indentSize: (options.indentSize || 2) + 2 };
+          
+          // Render each list item with proper indentation
+          return '\n' + (list.children || []).map(item => {
+            const renderedItem = this.renderList_item(item, nestedOptions);
+            return indent + renderedItem;
+          }).join('\n');
+        }).join('');
+        
+        content += nestedListContent;
+      }
     }
     
     return `${marker} ${content}`;

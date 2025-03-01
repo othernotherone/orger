@@ -342,9 +342,25 @@ export class HtmlRenderer extends BaseRenderer {
       content += `<input type="checkbox"${checkboxClass}${checked} disabled> `;
     }
     
-    // Add children
+    // Process children
     if (node.children && node.children.length > 0) {
-      content += node.children.map(child => this.renderNode(child, options)).join('');
+      // First, render all non-list children
+      const textContent = node.children
+        .filter(child => child.type !== 'list')
+        .map(child => this.renderNode(child, options))
+        .join('');
+      
+      content += textContent;
+      
+      // Then, render any nested lists
+      const nestedLists = node.children
+        .filter(child => child.type === 'list')
+        .map(child => this.renderNode(child, options))
+        .join('');
+      
+      if (nestedLists) {
+        content += nestedLists;
+      }
     }
     
     return `<li${className}>${content}</li>`;

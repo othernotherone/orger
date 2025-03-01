@@ -137,6 +137,199 @@
                       "value": "Text in the second heading."
                     }
                   ]
+                },
+                {
+                  "type": "heading",
+                  "level": 1,
+                  "title": "Lists",
+                  "children": [
+                    {
+                      "type": "heading",
+                      "level": 2,
+                      "title": "Unordered Lists",
+                      "children": [
+                        {
+                          "type": "list",
+                          "listType": "unordered",
+                          "children": [
+                            {
+                              "type": "list_item",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": "Item 1"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "list_item",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": "Item 2"
+                                },
+                                {
+                                  "type": "list",
+                                  "listType": "unordered",
+                                  "children": [
+                                    {
+                                      "type": "list_item",
+                                      "ordered": false,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "value": "Nested item 2.1"
+                                        },
+                                        {
+                                          "type": "list",
+                                          "listType": "unordered",
+                                          "children": [
+                                            {
+                                              "type": "list_item",
+                                              "ordered": false,
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "value": "Nested item 2.2"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "list_item",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": "Item 3"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "heading",
+                          "level": 2,
+                          "title": "Ordered Lists",
+                          "children": [
+                            {
+                              "type": "list",
+                              "listType": "ordered",
+                              "children": [
+                                {
+                                  "type": "list_item",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "value": "First item"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "list_item",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "value": "Second item"
+                                    },
+                                    {
+                                      "type": "list",
+                                      "listType": "ordered",
+                                      "children": [
+                                        {
+                                          "type": "list_item",
+                                          "ordered": true,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "value": "Nested item 2.1"
+                                            },
+                                            {
+                                              "type": "list",
+                                              "listType": "ordered",
+                                              "children": [
+                                                {
+                                                  "type": "list_item",
+                                                  "ordered": true,
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "value": "Nested item 2.2"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "list_item",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "value": "Third item"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "heading",
+                              "level": 2,
+                              "title": "Task Lists",
+                              "children": [
+                                {
+                                  "type": "list",
+                                  "listType": "unordered",
+                                  "children": [
+                                    {
+                                      "type": "list_item",
+                                      "checked": false,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "value": "Unchecked task"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "list_item",
+                                      "checked": true,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "value": "Checked task"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "list_item",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "value": "In progress task"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             }

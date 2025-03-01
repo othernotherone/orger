@@ -101,6 +101,27 @@ export class Parser {
             value: value
           };
         }
+        
+        function createList(items, ordered) {
+          return {
+            type: 'list',
+            listType: ordered ? 'ordered' : 'unordered',
+            children: items || []
+          };
+        }
+        
+        function createListItem(content, checkbox) {
+          const item = {
+            type: 'list_item',
+            children: content || []
+          };
+          
+          if (checkbox !== null) {
+            item.checked = checkbox;
+          }
+          
+          return item;
+        }
       }
       
       document
@@ -110,6 +131,7 @@ export class Parser {
       
       block
         = heading
+        / list
         / paragraph
         / blank_line
       
@@ -118,8 +140,80 @@ export class Parser {
             return createHeading(stars.length, title.join('').trim(), children.filter(Boolean));
           }
       
+      list
+        = items:list_item+ {
+            // Determine if this is an ordered or unordered list
+            const firstItem = items[0];
+            const ordered = firstItem.ordered;
+            
+            // Set the list type for all items
+            items.forEach(item => {
+              item.ordered = undefined; // Remove the temporary property
+            });
+            
+            return createList(items, ordered);
+          }
+      
+      list_item
+        = indent:whitespace? marker:list_marker whitespace checkbox:checkbox? content:inline_element* newline children:indented_block* {
+            const item = createListItem(content, checkbox);
+            
+            // Store whether this is an ordered list item (temporarily)
+            item.ordered = marker.ordered;
+            
+            // Add any children (indented content)
+            if (children && children.length > 0) {
+              item.children = item.children.concat(children.filter(Boolean));
+            }
+            
+            return item;
+          }
+      
+      list_marker
+        = marker:("-" / "+" / "*") {
+            return { ordered: false };
+          }
+        / number:[0-9]+ "." {
+            return { ordered: true };
+          }
+      
+      checkbox
+        = "[" ws:whitespace? "]" whitespace {
+            return false;
+          }
+        / "[X]" whitespace {
+            return true;
+          }
+        / "[x]" whitespace {
+            return true;
+          }
+        / "[-]" whitespace {
+            return null; // Partial/in progress
+          }
+      
+      indented_block
+        = indent:whitespace marker:list_marker whitespace checkbox:checkbox? content:inline_element* newline children:indented_block* {
+            // This is a nested list item
+            const item = createListItem(content, checkbox);
+            
+            // Store whether this is an ordered list item (temporarily)
+            item.ordered = marker.ordered;
+            
+            // Add any children (indented content)
+            if (children && children.length > 0) {
+              item.children = item.children.concat(children.filter(Boolean));
+            }
+            
+            // Create a list with this item
+            return createList([item], marker.ordered);
+          }
+        / indent:whitespace content:inline_element+ newline {
+            // This is indented content that's not a list
+            return createParagraph(content);
+          }
+      
       paragraph
-        = !("*" whitespace) content:inline_element+ newline {
+        = !(list_marker / "*" whitespace) content:inline_element+ newline {
             return createParagraph(content);
           }
       

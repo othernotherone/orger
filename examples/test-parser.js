@@ -17,6 +17,26 @@ More text in a subheading with **bold**, /italic text/, and =verbatim= content.
 
 * Heading 2
 Text in the second heading.
+
+* Lists
+** Unordered Lists
+- Item 1
+- Item 2
+  - Nested item 2.1
+  - Nested item 2.2
+- Item 3
+
+** Ordered Lists
+1. First item
+2. Second item
+   1. Nested item 2.1
+   2. Nested item 2.2
+3. Third item
+
+** Task Lists
+- [ ] Unchecked task
+- [X] Checked task
+- [-] In progress task
 `;
 
 /**
