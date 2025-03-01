@@ -1,3 +1,6 @@
+# Original Prompt
+hi there. i'm VERY interested in building an open source project and one that gains some traction. the one thing that i wanted to do over the years is pull org mode out of emacs...not that it shouldn't be there. but org mode is so good, i want to use it everywhere and i don't want it behind the wall of difficulty that is emacs (i'm fine with it, but TONS of people would never ever come close to using emacs. like this comment posted just a day ago: @https://news.ycombinator.com/item?id=43205368  so can you lay out a plan for what a general purpose plug in org more parser would be and be like? i've never built a parser and haven't a single idea on how to think about it. yeah, doc formatting, but more about how people could leverage it as a tool to include in their applications (mobile, web, desktop, embedded, etc). 
+
 # Building an Open Source Org Mode Parser
 
 I understand your interest in making Org Mode accessible beyond Emacs. This is indeed a valuable goal, as shown by the HN discussion you shared where users express frustration with Org Mode being tied to Emacs despite its powerful capabilities.
