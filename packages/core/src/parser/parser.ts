@@ -53,17 +53,59 @@ export class Parser {
           };
         }
         
-        function createParagraph(text) {
+        function createParagraph(children) {
           return {
             type: 'paragraph',
-            children: [{ type: 'text', value: text }]
+            children: children || []
+          };
+        }
+        
+        function createText(value) {
+          return {
+            type: 'text',
+            value: value
+          };
+        }
+        
+        function createBold(children) {
+          return {
+            type: 'bold',
+            children: children
+          };
+        }
+        
+        function createItalic(children) {
+          return {
+            type: 'italic',
+            children: children
+          };
+        }
+        
+        function createUnderline(children) {
+          return {
+            type: 'underline',
+            children: children
+          };
+        }
+        
+        function createStrikeThrough(children) {
+          return {
+            type: 'strike_through',
+            children: children
+          };
+        }
+        
+        function createCode(value) {
+          return {
+            type: 'code',
+            value: value
           };
         }
       }
       
       document
         = blocks:block* {
-            return createDocument(blocks);
+            return createDocument(blocks.filter(Boolean));
           }
       
       block
@@ -73,12 +115,74 @@ export class Parser {
       
       heading
         = stars:"*"+ whitespace title:[^\\r\\n]+ newline children:block* {
-            return createHeading(stars.length, title.join('').trim(), children);
+            return createHeading(stars.length, title.join('').trim(), children.filter(Boolean));
           }
       
       paragraph
-        = !("*" whitespace) text:[^\\r\\n]+ newline {
-            return createParagraph(text.join('').trim());
+        = !("*" whitespace) content:inline_element+ newline {
+            return createParagraph(content);
+          }
+      
+      inline_element
+        = bold
+        / italic
+        / underline
+        / strike_through
+        / code
+        / plain_text
+      
+      bold
+        = "**" content:(!"**" (inline_element / [^*\\r\\n]))* "**" {
+            return createBold(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
+          }
+        / "*" content:(!"*" (inline_element / [^*\\r\\n]))* "*" {
+            return createBold(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
+          }
+      
+      italic
+        = "/" content:(!"/" (inline_element / [^/\\r\\n]))* "/" {
+            return createItalic(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
+          }
+      
+      underline
+        = "_" content:(!"_" (inline_element / [^_\\r\\n]))* "_" {
+            return createUnderline(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
+          }
+      
+      strike_through
+        = "+" content:(!"+" (inline_element / [^+\\r\\n]))* "+" {
+            return createStrikeThrough(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
+          }
+      
+      code
+        = "~" content:(!"~" [^\\r\\n])* "~" {
+            return createCode(content.map(c => c[1]).join(''));
+          }
+        / "=" content:(!"=" [^\\r\\n])* "=" {
+            return createCode(content.map(c => c[1]).join(''));
+          }
+      
+      plain_text
+        = text:[^*/+_~=\\r\\n]+ {
+            return createText(text.join(''));
+          }
+        / text:[*] !([*]) {
+            return createText(text);
+          }
+        / text:[/] !([/]) {
+            return createText(text);
+          }
+        / text:[+] !([+]) {
+            return createText(text);
+          }
+        / text:[_] !([_]) {
+            return createText(text);
+          }
+        / text:[~] !([~]) {
+            return createText(text);
+          }
+        / text:[=] !([=]) {
+            return createText(text);
           }
       
       blank_line

@@ -12,7 +12,67 @@
           "children": [
             {
               "type": "text",
-              "value": "Some text in the first heading."
+              "value": "Some text in the first heading with "
+            },
+            {
+              "type": "bold",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "bold"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": ", "
+            },
+            {
+              "type": "italic",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "italic"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": ", "
+            },
+            {
+              "type": "underline",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "underlined"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": ", "
+            },
+            {
+              "type": "strike_through",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "strikethrough"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": " and "
+            },
+            {
+              "type": "code",
+              "value": "code"
+            },
+            {
+              "type": "text",
+              "value": " formatting."
             }
           ]
         },
@@ -26,7 +86,41 @@
               "children": [
                 {
                   "type": "text",
-                  "value": "More text in a subheading."
+                  "value": "More text in a subheading with "
+                },
+                {
+                  "type": "bold",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "bold"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": ", "
+                },
+                {
+                  "type": "italic",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "italic text"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": ", and "
+                },
+                {
+                  "type": "code",
+                  "value": "verbatim"
+                },
+                {
+                  "type": "text",
+                  "value": " content."
                 }
               ]
             },
