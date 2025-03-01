@@ -33,3 +33,25 @@ Text in the second heading.
 - [ ] Unchecked task
 - [x] Checked task
 - In progress task
+
+# **TODO** Tasks and Projects
+
+## **TODO** Write documentation
+
+Need to document the API and provide examples.
+
+## **DONE** Implement basic parser
+
+The basic parser is now working with support for headings, paragraphs, and formatting.
+
+## **PROJECT** Improve test coverage
+
+This is a larger project that will take some time.
+
+## **IDEA** Add support for tables
+
+It would be nice to add support for tables in the future.
+
+## **FEEDBACK** Review code structure
+
+Waiting for feedback on the current code structure.

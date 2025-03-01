@@ -181,11 +181,21 @@ export class HtmlRenderer extends BaseRenderer {
     }
     
     const title = this.escapeHtml(node.title || '');
+    let content = '';
+    
+    // Add TODO keyword if present
+    if (node.todoKeyword) {
+      const todoClass = options.addTypeClasses ? ` class="org-todo org-todo-${node.todoKeyword.toLowerCase()}"` : '';
+      content += `<span${todoClass}>${node.todoKeyword}</span> `;
+    }
+    
+    content += title;
+    
     const children = node.children && node.children.length > 0 
       ? node.children.map(child => this.renderNode(child, options)).join('')
       : '';
     
-    return `<${tag}${className}${attrs}>${title}</${tag}>${children}`;
+    return `<${tag}${className}${attrs}>${content}</${tag}>${children}`;
   }
 
   /**

@@ -6,6 +6,7 @@
       "type": "heading",
       "level": 1,
       "title": "Heading 1",
+      "todoKeyword": null,
       "children": [
         {
           "type": "paragraph",
@@ -80,6 +81,7 @@
           "type": "heading",
           "level": 2,
           "title": "Heading 1.1",
+          "todoKeyword": null,
           "children": [
             {
               "type": "paragraph",
@@ -128,6 +130,7 @@
               "type": "heading",
               "level": 1,
               "title": "Heading 2",
+              "todoKeyword": null,
               "children": [
                 {
                   "type": "paragraph",
@@ -142,11 +145,13 @@
                   "type": "heading",
                   "level": 1,
                   "title": "Lists",
+                  "todoKeyword": null,
                   "children": [
                     {
                       "type": "heading",
                       "level": 2,
                       "title": "Unordered Lists",
+                      "todoKeyword": null,
                       "children": [
                         {
                           "type": "list",
@@ -217,6 +222,7 @@
                           "type": "heading",
                           "level": 2,
                           "title": "Ordered Lists",
+                          "todoKeyword": null,
                           "children": [
                             {
                               "type": "list",
@@ -287,6 +293,7 @@
                               "type": "heading",
                               "level": 2,
                               "title": "Task Lists",
+                              "todoKeyword": null,
                               "children": [
                                 {
                                   "type": "list",
@@ -318,6 +325,99 @@
                                         {
                                           "type": "text",
                                           "value": "In progress task"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "heading",
+                                  "level": 1,
+                                  "title": "Tasks and Projects",
+                                  "todoKeyword": "TODO",
+                                  "children": [
+                                    {
+                                      "type": "heading",
+                                      "level": 2,
+                                      "title": "Write documentation",
+                                      "todoKeyword": "TODO",
+                                      "children": [
+                                        {
+                                          "type": "paragraph",
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "value": "Need to document the API and provide examples."
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "heading",
+                                          "level": 2,
+                                          "title": "Implement basic parser",
+                                          "todoKeyword": "DONE",
+                                          "children": [
+                                            {
+                                              "type": "paragraph",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "value": "The basic parser is now working with support for headings, paragraphs, and formatting."
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "heading",
+                                              "level": 2,
+                                              "title": "Improve test coverage",
+                                              "todoKeyword": "PROJECT",
+                                              "children": [
+                                                {
+                                                  "type": "paragraph",
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "value": "This is a larger project that will take some time."
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "heading",
+                                                  "level": 2,
+                                                  "title": "Add support for tables",
+                                                  "todoKeyword": "IDEA",
+                                                  "children": [
+                                                    {
+                                                      "type": "paragraph",
+                                                      "children": [
+                                                        {
+                                                          "type": "text",
+                                                          "value": "It would be nice to add support for tables in the future."
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "type": "heading",
+                                                      "level": 2,
+                                                      "title": "Review code structure",
+                                                      "todoKeyword": "FEEDBACK",
+                                                      "children": [
+                                                        {
+                                                          "type": "paragraph",
+                                                          "children": [
+                                                            {
+                                                              "type": "text",
+                                                              "value": "Waiting for feedback on the current code structure."
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
                                     }

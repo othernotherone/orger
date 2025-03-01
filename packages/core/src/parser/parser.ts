@@ -44,11 +44,12 @@ export class Parser {
           };
         }
         
-        function createHeading(level, title, children) {
+        function createHeading(level, title, children, todoKeyword) {
           return {
             type: 'heading',
             level: level,
             title: title,
+            todoKeyword: todoKeyword,
             children: children || []
           };
         }
@@ -136,8 +137,14 @@ export class Parser {
         / blank_line
       
       heading
-        = stars:"*"+ whitespace title:[^\\r\\n]+ newline children:block* {
-            return createHeading(stars.length, title.join('').trim(), children.filter(Boolean));
+        = stars:"*"+ whitespace todo_keyword:todo_keyword? title:[^\\r\\n]+ newline children:block* {
+            const titleText = title.join('').trim();
+            return createHeading(stars.length, titleText, children.filter(Boolean), todo_keyword);
+          }
+      
+      todo_keyword
+        = keyword:("TODO" / "DONE" / "FEEDBACK" / "VERIFY" / "DELEGATED" / "PROJECT" / "IDEA") whitespace {
+            return keyword;
           }
       
       list

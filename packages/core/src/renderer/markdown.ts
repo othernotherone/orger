@@ -157,7 +157,7 @@ export class MarkdownRenderer extends BaseRenderer {
     
     // Add TODO keyword if present
     if (node.todoKeyword) {
-      heading += `${node.todoKeyword} `;
+      heading += `**${node.todoKeyword}** `;
     }
     
     // Add title
