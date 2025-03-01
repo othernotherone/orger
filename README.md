@@ -1,10 +1,6 @@
-*************************************************************
-*                                                           *
-*  BUILT MOSTLY BY CURSOR AS A TEST - FAIR WARNING!         *
-*  hic sunt dracones                                        *
-*                                                           *
-*************************************************************
-
+> **⚠️ WARNING ⚠️**  
+> **BUILT MOSTLY BY CURSOR AS A TEST - FAIR WARNING!**  
+> **_hic sunt dracones_**
 
 # Orger: A Universal Org Mode Parser
 
