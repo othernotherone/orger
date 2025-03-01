@@ -1,0 +1,26 @@
+{
+  "name": "orger",
+  "version": "0.1.0",
+  "description": "A language-agnostic parser and toolkit for Org Mode documents",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=@orger/core",
+    "test": "npm run test --workspace=@orger/core",
+    "start:cli": "npm run start --workspace=@orger/cli",
+    "start:web": "npm run start --workspace=@orger/web"
+  },
+  "keywords": [
+    "org-mode",
+    "parser",
+    "toolkit"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/orger.git"
+  }
+}
