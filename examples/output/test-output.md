@@ -17,7 +17,7 @@ Text in the second heading.
 - Item 1
 - Item 2
   - Nested item 2.1
-    - Nested item 2.2
+    - Nested item 2.1.1
 - Item 3
 
 ## Ordered Lists
@@ -25,7 +25,7 @@ Text in the second heading.
 1. First item
 1. Second item
   1. Nested item 2.1
-    1. Nested item 2.2
+    1. Nested item 2.1.1
 1. Third item
 
 ## Task Lists

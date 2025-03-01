@@ -190,7 +190,7 @@
                                               "children": [
                                                 {
                                                   "type": "text",
-                                                  "value": "Nested item 2.2"
+                                                  "value": "Nested item 2.1.1"
                                                 }
                                               ]
                                             }
@@ -260,7 +260,7 @@
                                                   "children": [
                                                     {
                                                       "type": "text",
-                                                      "value": "Nested item 2.2"
+                                                      "value": "Nested item 2.1.1"
                                                     }
                                                   ]
                                                 }

@@ -23,14 +23,14 @@ Text in the second heading.
 - Item 1
 - Item 2
   - Nested item 2.1
-  - Nested item 2.2
+    - Nested item 2.1.1
 - Item 3
 
 ** Ordered Lists
 1. First item
 2. Second item
    1. Nested item 2.1
-   2. Nested item 2.2
+      1. Nested item 2.1.1
 3. Third item
 
 ** Task Lists
