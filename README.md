@@ -1,3 +1,11 @@
+*************************************************************
+*                                                           *
+*  BUILT MOSTLY BY CURSOR AS A TEST - FAIR WARNING!         *
+*  hic sunt dracones                                        *
+*                                                           *
+*************************************************************
+
+
 # Orger: A Universal Org Mode Parser
 
 Orger is an open-source project aimed at making Org Mode accessible beyond Emacs. It provides a standalone, language-agnostic parser for Org Mode documents that can be embedded in various applications.
