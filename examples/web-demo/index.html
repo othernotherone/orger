@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orger - Org Mode Parser Demo</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .panel {
+      flex: 1;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      font-family: monospace;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      resize: vertical;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow: auto;
+      max-height: 300px;
+    }
+    .output {
+      height: 300px;
+      overflow: auto;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    .tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-radius: 4px 4px 0 0;
+      background-color: #f8f9fa;
+      margin-right: 5px;
+    }
+    .tab.active {
+      background-color: #fff;
+      border-bottom: 1px solid #fff;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .highlight {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Orger - Org Mode Parser Demo</h1>
+    <p>Parse and render Org Mode documents in the browser</p>
+  </header>
+
+  <div class="container">
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Input</h2>
+        <button id="parse-btn">Parse</button>
+      </div>
+      <textarea id="org-input">#+TITLE: Sample Org Mode Document
+#+AUTHOR: Orger Team
+#+DATE: 2023-04-15
+
+* Introduction
+This is a sample Org Mode document to test the Orger parser.
+
+** Purpose
+The purpose of this document is to demonstrate various Org Mode features
+that can be parsed by Orger.
+
+* Formatting
+Org Mode supports various text formatting options:
+- *Bold text*
+- /Italic text/
+- _Underlined text_
+- +Strikethrough text+
+- ~Code~
+- =Verbatim=
+
+* Lists
+** Unordered Lists
+- Item 1
+- Item 2
+  - Subitem 2.1
+  - Subitem 2.2
+- Item 3</textarea>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Output</h2>
+        <div class="tabs">
+          <div class="tab active" data-tab="html">HTML</div>
+          <div class="tab" data-tab="markdown">Markdown</div>
+          <div class="tab" data-tab="ast">AST</div>
+        </div>
+      </div>
+      <div class="tab-content active" id="html-output">
+        <div class="output"></div>
+      </div>
+      <div class="tab-content" id="markdown-output">
+        <pre></pre>
+      </div>
+      <div class="tab-content" id="ast-output">
+        <pre></pre>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@orger/core@latest/dist/bundle.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const orgInput = document.getElementById('org-input');
+      const parseBtn = document.getElementById('parse-btn');
+      const htmlOutput = document.querySelector('#html-output .output');
+      const markdownOutput = document.querySelector('#markdown-output pre');
+      const astOutput = document.querySelector('#ast-output pre');
+      const tabs = document.querySelectorAll('.tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      // Switch tabs
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tabContents.forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(`${tab.dataset.tab}-output`).classList.add('active');
+        });
+      });
+
+      // Parse button click handler
+      parseBtn.addEventListener('click', () => {
+        try {
+          const orgContent = orgInput.value;
+          
+          // Parse the Org Mode content
+          const document = Orger.parse(orgContent);
+          
+          // Render to HTML
+          const htmlRenderer = new Orger.HtmlRenderer();
+          const html = htmlRenderer.render(document);
+          htmlOutput.innerHTML = html;
+          
+          // Render to Markdown
+          const mdRenderer = new Orger.MarkdownRenderer();
+          const markdown = mdRenderer.render(document);
+          markdownOutput.textContent = markdown;
+          
+          // Display AST as JSON
+          astOutput.textContent = JSON.stringify(document, null, 2);
+        } catch (error) {
+          console.error('Error parsing Org Mode content:', error);
+          htmlOutput.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
+          markdownOutput.textContent = `Error: ${error.message}`;
+          astOutput.textContent = `Error: ${error.message}`;
+        }
+      });
+
+      // Initial parse
+      parseBtn.click();
+    });
+  </script>
+</body>
+</html> 

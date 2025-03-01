@@ -1,0 +1,15 @@
+{
+  "name": "@orger/web-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web demo for Orger - an Org Mode parser and renderer",
+  "scripts": {
+    "start": "http-server -o"
+  },
+  "dependencies": {
+    "@orger/core": "^0.1.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+} 

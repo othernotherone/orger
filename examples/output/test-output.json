@@ -1,0 +1,54 @@
+{
+  "type": "document",
+  "properties": {},
+  "children": [
+    {
+      "type": "heading",
+      "level": 1,
+      "title": "Heading 1",
+      "children": [
+        {
+          "type": "paragraph",
+          "children": [
+            {
+              "type": "text",
+              "value": "Some text in the first heading."
+            }
+          ]
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "title": "Heading 1.1",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "More text in a subheading."
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "level": 1,
+              "title": "Heading 2",
+              "children": [
+                {
+                  "type": "paragraph",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "Text in the second heading."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

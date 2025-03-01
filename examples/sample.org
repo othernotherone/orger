@@ -1,0 +1,78 @@
+#+TITLE: Sample Org Mode Document
+#+AUTHOR: Orger Team
+#+DATE: 2023-04-15
+
+* Introduction
+This is a sample Org Mode document to test the Orger parser.
+
+** Purpose
+The purpose of this document is to demonstrate various Org Mode features
+that can be parsed by Orger.
+
+* Formatting
+Org Mode supports various text formatting options:
+- *Bold text*
+- /Italic text/
+- _Underlined text_
+- +Strikethrough text+
+- ~Code~
+- =Verbatim=
+
+* Lists
+** Unordered Lists
+- Item 1
+- Item 2
+  - Subitem 2.1
+  - Subitem 2.2
+- Item 3
+
+** Ordered Lists
+1. First item
+2. Second item
+   1. Subitem 2.1
+   2. Subitem 2.2
+3. Third item
+
+** Definition Lists
+- Term 1 :: Definition 1
+- Term 2 :: Definition 2
+- Term 3 :: Definition 3
+
+* Links
+Org Mode supports various link types:
+- [[https://example.com][External link]]
+- [[file:image.png][File link]]
+- [[#introduction][Internal link]]
+
+* Tables
+| Name  | Age | Occupation    |
+|-------+-----+---------------|
+| Alice | 28  | Developer     |
+| Bob   | 35  | Designer      |
+| Carol | 42  | Project Lead  |
+
+* Code Blocks
+#+BEGIN_SRC javascript
+function hello() {
+  console.log("Hello, world!");
+}
+hello();
+#+END_SRC
+
+* TODO Tasks
+** TODO Write documentation
+** DONE Set up project
+** TODO Implement parser
+   DEADLINE: <2023-05-01>
+
+* Tags                                                            :example:tags:
+This heading has tags.
+
+* Properties
+:PROPERTIES:
+:ID: unique-id-123
+:CREATED: [2023-04-15]
+:END:
+
+* Conclusion
+This concludes our sample Org Mode document. 
