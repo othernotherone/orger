@@ -67,15 +67,86 @@ export class Parser {
             value: value
           };
         }
+        
+        function createList(items, ordered) {
+          return {
+            type: 'list',
+            listType: ordered ? 'ordered' : 'unordered',
+            children: items || []
+          };
+        }
+        
+        function createListItem(content, children, ordered) {
+          const item = {
+            type: 'list_item',
+            children: content || [],
+            ordered: ordered
+          };
+          
+          if (children && children.length > 0) {
+            item.children = item.children.concat(children.filter(Boolean));
+          }
+          
+          return item;
+        }
+        
+        // Helper function to process list items with proper nesting
+        function processListItems(items) {
+          if (!items || items.length === 0) return [];
+          
+          const result = [];
+          let currentItem = null;
+          let currentLevel = 0;
+          let stack = [{ level: 0, items: result }];
+          
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const level = item.indentLevel || 0;
+            
+            // Remove the temporary property
+            delete item.indentLevel;
+            
+            if (level > currentLevel) {
+              // This is a nested item
+              if (currentItem) {
+                // Create a new list for the nested items
+                const nestedList = {
+                  type: 'list',
+                  listType: item.ordered ? 'ordered' : 'unordered',
+                  children: []
+                };
+                
+                // Add the nested list to the current item
+                currentItem.children.push(nestedList);
+                
+                // Update the stack
+                stack.push({ level: level, items: nestedList.children });
+              }
+            } else if (level < currentLevel) {
+              // Going back up the hierarchy
+              while (stack.length > 1 && stack[stack.length - 1].level > level) {
+                stack.pop();
+              }
+            }
+            
+            // Add the item to the current level
+            stack[stack.length - 1].items.push(item);
+            
+            currentItem = item;
+            currentLevel = level;
+          }
+          
+          return result;
+        }
       }
       
       document
-        = newline* children:(heading / paragraph)* {
-            return createDocument(children);
+        = newline* children:(heading / list / paragraph / empty_line)* {
+            return createDocument(children.filter(Boolean));
           }
       
       heading
-        = stars:asterisk+ whitespace todo_keyword:todo_keyword? title:(!newline .)* newline children:(heading / paragraph)* {
+        = stars:asterisk+ whitespace todo_keyword:todo_keyword? title:(!newline .)* newline children:(heading / list / paragraph / empty_line)* {
           const level = stars.length;
           const titleText = title.map(t => t[1]).join('').trim();
           return createHeading(level, titleText, children.filter(Boolean), todo_keyword);
@@ -94,14 +165,56 @@ export class Parser {
       project = "PROJECT" { return "PROJECT"; }
       idea = "IDEA" { return "IDEA"; }
       
+      list
+        = raw_items:list_item+ {
+            // Process the raw items to create a properly nested list
+            const firstItem = raw_items[0];
+            const ordered = firstItem.ordered;
+            
+            // Process the items to create the proper hierarchy
+            const items = processListItems(raw_items);
+            
+            // Create the list
+            const list = createList(items, ordered);
+            
+            return list;
+          }
+      
+      list_item
+        = indent:whitespace? marker:list_marker whitespace content:(!newline .)* newline {
+            // Check if this is an ordered list item by looking at the marker type
+            const isOrdered = typeof marker === 'string' ? marker.indexOf('.') > 0 : false;
+            
+            // Process content
+            const contentText = content.map(c => c[1]).join('');
+            const contentNodes = [createText(contentText)];
+            
+            // Create the list item
+            const item = createListItem(contentNodes, [], isOrdered);
+            
+            // Store the indentation level for later processing
+            item.indentLevel = indent ? indent.length : 0;
+            
+            return item;
+          }
+      
+      list_marker
+        = marker:("-" / "+" / "*") { return marker; }
+        / number:[0-9]+ "." { return number.join('') + "."; }
+      
       paragraph
-        = !heading content:(!newline !heading .)+ newline+ {
+        = !heading !list content:(!newline !heading !list .)+ newline+ {
             const contentText = content.map(c => c[1]).join('');
             return createParagraph([createText(contentText)]);
           }
-        / !heading content:(!newline !heading .)+ {
+        / !heading !list content:(!newline !heading !list .)+ {
             const contentText = content.map(c => c[1]).join('');
             return createParagraph([createText(contentText)]);
+          }
+      
+      empty_line
+        = newline {
+            return null;
           }
       
       whitespace
