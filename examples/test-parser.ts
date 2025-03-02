@@ -6,6 +6,7 @@ import * as path from 'path';
 import { Parser } from '../packages/core/src/parser/parser';
 import { HtmlRenderer } from '../packages/core/src/renderer/html';
 import { MarkdownRenderer } from '../packages/core/src/renderer/markdown';
+import { OrgRenderer } from '../packages/core/src/renderer/org';
 
 // Sample Org Mode content
 const orgContent = `
@@ -107,6 +108,14 @@ try {
   console.log('\nMarkdown output:');
   console.log(markdown);
   
+  // Render to Org Mode
+  const orgRenderer = new OrgRenderer();
+  const org = orgRenderer.render(document, { pretty: true });
+  
+  console.log('\n✅ Org Mode rendering successful!');
+  console.log('\nOrg Mode output:');
+  console.log(org);
+  
   // Save outputs to files
   const outputDir = path.join(__dirname, 'output');
   if (!fs.existsSync(outputDir)) {
@@ -115,6 +124,7 @@ try {
   
   fs.writeFileSync(path.join(outputDir, 'test-output.html'), html);
   fs.writeFileSync(path.join(outputDir, 'test-output.md'), markdown);
+  fs.writeFileSync(path.join(outputDir, 'test-output.org'), org);
   fs.writeFileSync(path.join(outputDir, 'test-output.json'), JSON.stringify(serializedDoc, null, 2));
   
   console.log('\nOutput files saved to examples/output/ directory.');
