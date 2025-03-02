@@ -67,233 +67,50 @@ export class Parser {
             value: value
           };
         }
-        
-        function createBold(children) {
-          return {
-            type: 'bold',
-            children: children
-          };
-        }
-        
-        function createItalic(children) {
-          return {
-            type: 'italic',
-            children: children
-          };
-        }
-        
-        function createUnderline(children) {
-          return {
-            type: 'underline',
-            children: children
-          };
-        }
-        
-        function createStrikeThrough(children) {
-          return {
-            type: 'strike_through',
-            children: children
-          };
-        }
-        
-        function createCode(value) {
-          return {
-            type: 'code',
-            value: value
-          };
-        }
-        
-        function createList(items, ordered) {
-          return {
-            type: 'list',
-            listType: ordered ? 'ordered' : 'unordered',
-            children: items || []
-          };
-        }
-        
-        function createListItem(content, checkbox) {
-          const item = {
-            type: 'list_item',
-            children: content || []
-          };
-          
-          if (checkbox !== null) {
-            item.checked = checkbox;
-          }
-          
-          return item;
-        }
       }
       
       document
-        = blocks:block* {
-            return createDocument(blocks.filter(Boolean));
+        = newline* children:(heading / paragraph)* {
+            return createDocument(children);
           }
-      
-      block
-        = heading
-        / list
-        / paragraph
-        / blank_line
       
       heading
-        = stars:"*"+ whitespace todo_keyword:todo_keyword? title:[^\\r\\n]+ newline children:block* {
-            const titleText = title.join('').trim();
-            return createHeading(stars.length, titleText, children.filter(Boolean), todo_keyword);
-          }
+        = stars:asterisk+ whitespace todo_keyword:todo_keyword? title:(!newline .)* newline children:(heading / paragraph)* {
+          const level = stars.length;
+          const titleText = title.map(t => t[1]).join('').trim();
+          return createHeading(level, titleText, children.filter(Boolean), todo_keyword);
+        }
       
       todo_keyword
-        = keyword:("TODO" / "DONE" / "FEEDBACK" / "VERIFY" / "DELEGATED" / "PROJECT" / "IDEA") whitespace {
+        = keyword:(todo / done / feedback / verify / delegated / project / idea) whitespace {
             return keyword;
           }
       
-      list
-        = items:list_item+ {
-            // Determine if this is an ordered or unordered list
-            const firstItem = items[0];
-            const ordered = firstItem.ordered;
-            
-            // Set the list type for all items
-            items.forEach(item => {
-              item.ordered = undefined; // Remove the temporary property
-            });
-            
-            return createList(items, ordered);
-          }
-      
-      list_item
-        = indent:whitespace? marker:list_marker whitespace checkbox:checkbox? content:inline_element* newline children:indented_block* {
-            const item = createListItem(content, checkbox);
-            
-            // Store whether this is an ordered list item (temporarily)
-            item.ordered = marker.ordered;
-            
-            // Add any children (indented content)
-            if (children && children.length > 0) {
-              item.children = item.children.concat(children.filter(Boolean));
-            }
-            
-            return item;
-          }
-      
-      list_marker
-        = marker:("-" / "+" / "*") {
-            return { ordered: false };
-          }
-        / number:[0-9]+ "." {
-            return { ordered: true };
-          }
-      
-      checkbox
-        = "[" ws:whitespace? "]" whitespace {
-            return false;
-          }
-        / "[X]" whitespace {
-            return true;
-          }
-        / "[x]" whitespace {
-            return true;
-          }
-        / "[-]" whitespace {
-            return null; // Partial/in progress
-          }
-      
-      indented_block
-        = indent:whitespace marker:list_marker whitespace checkbox:checkbox? content:inline_element* newline children:indented_block* {
-            // This is a nested list item
-            const item = createListItem(content, checkbox);
-            
-            // Store whether this is an ordered list item (temporarily)
-            item.ordered = marker.ordered;
-            
-            // Add any children (indented content)
-            if (children && children.length > 0) {
-              item.children = item.children.concat(children.filter(Boolean));
-            }
-            
-            // Create a list with this item
-            return createList([item], marker.ordered);
-          }
-        / indent:whitespace content:inline_element+ newline {
-            // This is indented content that's not a list
-            return createParagraph(content);
-          }
+      todo = "TODO" { return "TODO"; }
+      done = "DONE" { return "DONE"; }
+      feedback = "FEEDBACK" { return "FEEDBACK"; }
+      verify = "VERIFY" { return "VERIFY"; }
+      delegated = "DELEGATED" { return "DELEGATED"; }
+      project = "PROJECT" { return "PROJECT"; }
+      idea = "IDEA" { return "IDEA"; }
       
       paragraph
-        = !(list_marker / "*" whitespace) content:inline_element+ newline {
-            return createParagraph(content);
+        = !heading content:(!newline !heading .)+ newline+ {
+            const contentText = content.map(c => c[1]).join('');
+            return createParagraph([createText(contentText)]);
           }
-      
-      inline_element
-        = bold
-        / italic
-        / underline
-        / strike_through
-        / code
-        / plain_text
-      
-      bold
-        = "**" content:(!"**" (inline_element / [^*\\r\\n]))* "**" {
-            return createBold(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
+        / !heading content:(!newline !heading .)+ {
+            const contentText = content.map(c => c[1]).join('');
+            return createParagraph([createText(contentText)]);
           }
-        / "*" content:(!"*" (inline_element / [^*\\r\\n]))* "*" {
-            return createBold(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
-          }
-      
-      italic
-        = "/" content:(!"/" (inline_element / [^/\\r\\n]))* "/" {
-            return createItalic(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
-          }
-      
-      underline
-        = "_" content:(!"_" (inline_element / [^_\\r\\n]))* "_" {
-            return createUnderline(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
-          }
-      
-      strike_through
-        = "+" content:(!"+" (inline_element / [^+\\r\\n]))* "+" {
-            return createStrikeThrough(content.map(c => typeof c[1] === 'string' ? createText(c[1]) : c[1]));
-          }
-      
-      code
-        = "~" content:(!"~" [^\\r\\n])* "~" {
-            return createCode(content.map(c => c[1]).join(''));
-          }
-        / "=" content:(!"=" [^\\r\\n])* "=" {
-            return createCode(content.map(c => c[1]).join(''));
-          }
-      
-      plain_text
-        = text:[^*/+_~=\\r\\n]+ {
-            return createText(text.join(''));
-          }
-        / text:[*] !([*]) {
-            return createText(text);
-          }
-        / text:[/] !([/]) {
-            return createText(text);
-          }
-        / text:[+] !([+]) {
-            return createText(text);
-          }
-        / text:[_] !([_]) {
-            return createText(text);
-          }
-        / text:[~] !([~]) {
-            return createText(text);
-          }
-        / text:[=] !([=]) {
-            return createText(text);
-          }
-      
-      blank_line
-        = whitespace? newline { return null; }
       
       whitespace
         = [ \\t]+
       
       newline
         = "\\r\\n" / "\\n" / "\\r"
+        
+      asterisk = "*"
     `;
     
     // Create parser

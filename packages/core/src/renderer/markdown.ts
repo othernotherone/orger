@@ -358,65 +358,54 @@ export class MarkdownRenderer extends BaseRenderer {
   }
 
   /**
-   * Render a table node
+   * Render a table
    * 
    * @param node The table node
    * @param options Rendering options
    * @returns The rendered Markdown
    */
   protected renderTable(node: Node, options: MarkdownRenderOptions): string {
-    if (!node.children || node.children.length === 0) {
-      return '';
-    }
+    const rows = node.children || [];
+    let result = '';
     
-    const rows = node.children;
-    
-    // Calculate column widths
-    const columnWidths: number[] = [];
-    for (const row of rows) {
-      if (row.children) {
-        row.children.forEach((cell, i) => {
-          const cellContent = this.renderNode(cell, options);
-          columnWidths[i] = Math.max(columnWidths[i] || 0, cellContent.length);
-        });
+    // Render each row
+    rows.forEach((row, index) => {
+      result += this.renderNode(row, options);
+      
+      // Add a separator row after the header row
+      if (index === 0 && row.isHeader) {
+        const cells = row.children || [];
+        const separator = cells.map(() => '---').join(' | ');
+        result += `| ${separator} |\n\n`;
       }
-    }
+    });
     
-    // Render rows
-    const renderedRows = rows.map((row, rowIndex) => {
-      if (!row.children) return '';
-      
-      const cells = row.children.map((cell, i) => {
-        const content = this.renderNode(cell, options);
-        // Pad content to match column width
-        return content.padEnd(columnWidths[i] || content.length, ' ');
-      }).join(' | ');
-      
-      // Add separator row after header
-      if (rowIndex === 0) {
-        const separator = columnWidths.map(width => '-'.repeat(width)).join(' | ');
-        return `| ${cells} |\n| ${separator} |`;
-      }
-      
-      return `| ${cells} |`;
-    }).join('\n');
-    
-    return renderedRows;
+    return result;
   }
 
   /**
-   * Render a table cell node
+   * Render a table row
+   * 
+   * @param node The table row node
+   * @param options Rendering options
+   * @returns The rendered Markdown
+   */
+  protected renderTable_row(node: Node, options: MarkdownRenderOptions): string {
+    const cells = node.children || [];
+    const cellsContent = cells.map(cell => this.renderNode(cell, options).trim()).join(' | ');
+    
+    return `| ${cellsContent} |\n\n`;
+  }
+
+  /**
+   * Render a table cell
    * 
    * @param node The table cell node
    * @param options Rendering options
    * @returns The rendered Markdown
    */
   protected renderTable_cell(node: Node, options: MarkdownRenderOptions): string {
-    const children = node.children && node.children.length > 0
-      ? node.children.map(child => this.renderNode(child, options)).join('')
-      : '';
-    
-    return children;
+    return (node.children || []).map(child => this.renderNode(child, options)).join('');
   }
 
   /**

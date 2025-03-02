@@ -37,6 +37,11 @@ export interface HtmlRenderOptions extends RenderOptions {
    * @default true
    */
   useSemanticHtml?: boolean;
+
+  /**
+   * Whether the current cell is a header cell (used internally for table rendering)
+   */
+  isHeaderCell?: boolean;
 }
 
 /**
@@ -377,52 +382,67 @@ export class HtmlRenderer extends BaseRenderer {
   }
 
   /**
-   * Render a table node
+   * Render a table
    * 
    * @param node The table node
    * @param options Rendering options
    * @returns The rendered HTML
    */
   protected renderTable(node: Node, options: HtmlRenderOptions): string {
-    const className = options.addTypeClasses ? ' class="org-table"' : '';
-    const children = node.children && node.children.length > 0
-      ? node.children.map(child => this.renderNode(child, options)).join('')
-      : '';
+    const className = this.getClassName('table', options);
+    const rows = node.children || [];
     
-    return `<table${className}>${children}</table>`;
+    const renderedRows = rows.map(row => this.renderNode(row, options)).join('');
+    
+    return `<table${className ? ` class="${className}"` : ''}>\n${renderedRows}</table>\n\n`;
   }
 
   /**
-   * Render a table row node
+   * Get a class name based on the type and options
+   * 
+   * @param type The node type
+   * @param options Rendering options
+   * @returns The class name or empty string
+   */
+  private getClassName(type: string, options: HtmlRenderOptions): string {
+    return options.addTypeClasses ? `org-${type}` : '';
+  }
+
+  /**
+   * Render a table row
    * 
    * @param node The table row node
    * @param options Rendering options
    * @returns The rendered HTML
    */
   protected renderTable_row(node: Node, options: HtmlRenderOptions): string {
-    const className = options.addTypeClasses ? ' class="org-table-row"' : '';
-    const children = node.children && node.children.length > 0
-      ? node.children.map(child => this.renderNode(child, options)).join('')
-      : '';
+    const className = options.addTypeClasses ? `org-table-row` : '';
+    const cells = node.children || [];
     
-    return `<tr${className}>${children}</tr>`;
+    const isHeader = node.isHeader;
+    const renderedCells = cells.map(cell => {
+      // Instead of modifying the node, we'll pass the isHeader flag to the cell renderer
+      return this.renderTable_cell(cell, { ...options, isHeaderCell: isHeader });
+    }).join('');
+    
+    return `<tr${className ? ` class="${className}"` : ''}>\n${renderedCells}</tr>\n`;
   }
 
   /**
-   * Render a table cell node
+   * Render a table cell
    * 
    * @param node The table cell node
    * @param options Rendering options
    * @returns The rendered HTML
    */
   protected renderTable_cell(node: Node, options: HtmlRenderOptions): string {
-    const tag = node.isHeader ? 'th' : 'td';
-    const className = options.addTypeClasses ? ` class="org-table-cell${node.isHeader ? ' org-table-header-cell' : ''}"` : '';
-    const children = node.children && node.children.length > 0
-      ? node.children.map(child => this.renderNode(child, options)).join('')
-      : '';
+    // Use the isHeaderCell option to determine the tag
+    const tag = options.isHeaderCell ? 'th' : 'td';
+    const className = options.addTypeClasses ? `org-table-cell` : '';
     
-    return `<${tag}${className}>${children}</${tag}>`;
+    const content = (node.children || []).map(child => this.renderNode(child, options)).join('');
+    
+    return `<${tag}${className ? ` class="${className}"` : ''}>${content}</${tag}>\n`;
   }
 
   /**
@@ -482,6 +502,54 @@ export class HtmlRenderer extends BaseRenderer {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  }
+
+  /**
+   * Render a node
+   * 
+   * @param node The node to render
+   * @param options Rendering options
+   * @returns The rendered HTML
+   */
+  public renderNode(node: Node, options: HtmlRenderOptions = {}): string {
+    // Check for custom renderer
+    if (options.renderers && options.renderers[node.type]) {
+      return options.renderers[node.type](node, options);
+    }
+
+    // Use the appropriate renderer based on node type
+    switch (node.type) {
+      case 'document':
+        return this.renderDocument(node as Document, options);
+      case 'heading':
+        return this.renderHeading(node, options);
+      case 'paragraph':
+        return this.renderParagraph(node, options);
+      case 'text':
+        return this.renderText(node, options);
+      case 'bold':
+        return this.renderBold(node, options);
+      case 'italic':
+        return this.renderItalic(node, options);
+      case 'underline':
+        return this.renderUnderline(node, options);
+      case 'strike_through':
+        return this.renderStrike_through(node, options);
+      case 'code':
+        return this.renderCode(node, options);
+      case 'list':
+        return this.renderList(node, options);
+      case 'list_item':
+        return this.renderList_item(node, options);
+      case 'table':
+        return this.renderTable(node, options);
+      case 'table_row':
+        return this.renderTable_row(node, options);
+      case 'table_cell':
+        return this.renderTable_cell(node, options);
+      default:
+        return '';
+    }
   }
 }
 

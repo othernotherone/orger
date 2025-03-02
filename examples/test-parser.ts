@@ -33,11 +33,6 @@ Text in the second heading.
       1. Nested item 2.1.1
 3. Third item
 
-** Task Lists
-- [ ] Unchecked task
-- [X] Checked task
-- [-] In progress task
-
 * TODO Tasks and Projects
 ** TODO Write documentation
 Need to document the API and provide examples.

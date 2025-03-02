@@ -13,12 +13,13 @@ const orgContent = `
 Some text in the first heading with *bold*, /italic/, _underlined_, +strikethrough+ and ~code~ formatting.
 
 ** Heading 1.1
-More text in a subheading with **bold**, /italic text/, and =verbatim= content.
+More text in a subheading with *bold*, /italic text/, and ~verbatim~ content.
 
 * Heading 2
 Text in the second heading.
 
 * Lists
+
 ** Unordered Lists
 - Item 1
 - Item 2
@@ -28,17 +29,18 @@ Text in the second heading.
 
 ** Ordered Lists
 1. First item
-2. Second item
+1. Second item
    1. Nested item 2.1
       1. Nested item 2.1.1
-3. Third item
+1. Third item
 
 ** Task Lists
 - [ ] Unchecked task
 - [X] Checked task
-- [-] In progress task
+- In progress task
 
 * TODO Tasks and Projects
+
 ** TODO Write documentation
 Need to document the API and provide examples.
 
@@ -53,6 +55,27 @@ It would be nice to add support for tables in the future.
 
 ** FEEDBACK Review code structure
 Waiting for feedback on the current code structure.
+
+* Tables
+
+** Simple Table
+| Name  | Age | City     |
+|-------|-----|----------|
+| Alice | 25  | New York |
+| Bob   | 30  | London   |
+| Carol | 28  | Tokyo    |
+
+** Table with Formatting
+| *Name*  | /Role/      | Status    |
+|---------|-------------|-----------|
+| Alice   | Developer   | _Active_  |
+| Bob     | *Designer*  | +Inactive+|
+| Carol   | ~Manager~   | _Active_  |
+
+** Table without Header
+| Data 1 | Data 2 | Data 3 |
+| 1      | 2      | 3      |
+| A      | B      | C      |
 `;
 
 /**
