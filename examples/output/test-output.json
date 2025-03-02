@@ -13,23 +13,67 @@
           "children": [
             {
               "type": "text",
-              "value": ""
-            }
-          ]
-        },
-        {
-          "type": "list",
-          "listType": "unordered",
-          "children": [
+              "value": "Some text in the first heading with "
+            },
             {
-              "type": "list_item",
-              "ordered": false,
+              "type": "bold",
               "children": [
                 {
                   "type": "text",
-                  "value": "and ~code~ formatting."
+                  "value": "bold"
                 }
               ]
+            },
+            {
+              "type": "text",
+              "value": ", "
+            },
+            {
+              "type": "italic",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "italic"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": ", "
+            },
+            {
+              "type": "underline",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "underlined"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": ", "
+            },
+            {
+              "type": "strikethrough",
+              "children": [
+                {
+                  "type": "text",
+                  "value": "strikethrough"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "value": " and "
+            },
+            {
+              "type": "code",
+              "value": "code"
+            },
+            {
+              "type": "text",
+              "value": " formatting."
             }
           ]
         },
@@ -44,7 +88,41 @@
               "children": [
                 {
                   "type": "text",
-                  "value": ""
+                  "value": "More text in a subheading with *"
+                },
+                {
+                  "type": "bold",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "bold"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": "*, "
+                },
+                {
+                  "type": "italic",
+                  "children": [
+                    {
+                      "type": "text",
+                      "value": "italic text"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "value": ", and "
+                },
+                {
+                  "type": "verbatim",
+                  "value": "verbatim"
+                },
+                {
+                  "type": "text",
+                  "value": " content."
                 }
               ]
             },
@@ -59,7 +137,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "value": ""
+                      "value": "Text in the second heading."
                     }
                   ]
                 },
@@ -144,6 +222,15 @@
                           ]
                         },
                         {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "value": ""
+                            }
+                          ]
+                        },
+                        {
                           "type": "heading",
                           "level": 2,
                           "title": "Ordered Lists",
@@ -218,6 +305,15 @@
                               ]
                             },
                             {
+                              "type": "paragraph",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": ""
+                                }
+                              ]
+                            },
+                            {
                               "type": "heading",
                               "level": 1,
                               "title": "Tasks and Projects",
@@ -234,7 +330,7 @@
                                       "children": [
                                         {
                                           "type": "text",
-                                          "value": ""
+                                          "value": "Need to document the API and provide examples."
                                         }
                                       ]
                                     },
@@ -249,7 +345,7 @@
                                           "children": [
                                             {
                                               "type": "text",
-                                              "value": ""
+                                              "value": "The basic parser is now working with support for headings, paragraphs, and formatting."
                                             }
                                           ]
                                         },
@@ -264,7 +360,7 @@
                                               "children": [
                                                 {
                                                   "type": "text",
-                                                  "value": ""
+                                                  "value": "This is a larger project that will take some time."
                                                 }
                                               ]
                                             },
@@ -279,7 +375,7 @@
                                                   "children": [
                                                     {
                                                       "type": "text",
-                                                      "value": ""
+                                                      "value": "It would be nice to add support for tables in the future."
                                                     }
                                                   ]
                                                 },
@@ -294,7 +390,7 @@
                                                       "children": [
                                                         {
                                                           "type": "text",
-                                                          "value": ""
+                                                          "value": "Waiting for feedback on the current code structure."
                                                         }
                                                       ]
                                                     }

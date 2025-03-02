@@ -1,0 +1,2810 @@
+<<org-div-home-and-up>>
+[[file:index.html][UP]] | [[https://orgmode.org/worg/][HOME]]
+
+<<preamble>>
+
+<<support>>
+Support via [[https://liberapay.com/org-mode][Liberapay]]
+
+<<content>>
+
+* Org Syntax
+:PROPERTIES:
+:CUSTOM_ID: org-syntax
+:CLASS: title
+:END:
+v2
+
+** Table of Contents
+:PROPERTIES:
+:CUSTOM_ID: table-of-contents
+:END:
+
+<<text-table-of-contents>>
+- [[#org254a658][1. Introduction]]
+- [[#org84d3c6b][2. Terminology and conventions]]
+  - [[#org1b5853f][2.1. Objects and Elements]]
+  - [[#Blanks][2.2. Blank lines]]
+  - [[#org5e217e0][2.3. Indentation]]
+  - [[#orga73e507][2.4. The minimal and standard sets of objects]]
+  - [[#org9ff0a9c][2.5. Syntax patterns]]
+    - [[#org15d2894][2.5.1. General form]]
+    - [[#Special_Tokens][2.5.2. Special tokens]]
+    - [[#org2f5c140][2.5.3. Case significance]]
+  - [[#orge7279f5][2.6. References to lisp variables]]
+- [[#orgf467851][3. General structure of Org document]]
+- [[#Elements][4. Elements]]
+  - [[#Headings_and_Sections][4.1. Headings and Sections]]
+    - [[#Headings][4.1.1. Headings]]
+    - [[#Sections][4.1.2. Sections]]
+    - [[#Zeroth_section][4.1.3. The zeroth section]]
+  - [[#Greater_Elements][4.2. Greater Elements]]
+    - [[#Greater_Blocks][4.2.1. Greater Blocks]]
+    - [[#Drawers][4.2.2. Drawers and Property Drawers]]
+    - [[#Dynamic_Blocks][4.2.3. Dynamic Blocks]]
+    - [[#Footnote_Definitions][4.2.4. Footnote Definitions]]
+    - [[#Inlinetasks][4.2.5. Inlinetasks]]
+    - [[#Items][4.2.6. Items]]
+    - [[#Plain_Lists][4.2.7. Plain Lists]]
+    - [[#Property_Drawers][4.2.8. Property Drawers]]
+    - [[#Tables][4.2.9. Tables]]
+  - [[#Lesser_Elements][4.3. Lesser Elements]]
+    - [[#Blocks][4.3.1. Blocks]]
+    - [[#Clocks][4.3.2. Clock]]
+    - [[#Diary_Sexp][4.3.3. Diary Sexp]]
+    - [[#Planning][4.3.4. Planning]]
+    - [[#Comments][4.3.5. Comments]]
+    - [[#Fixed_Width_Areas][4.3.6. Fixed Width Areas]]
+    - [[#Horizontal_Rules][4.3.7. Horizontal Rules]]
+    - [[#Keywords][4.3.8. Keywords]]
+    - [[#LaTeX_Environments][4.3.9. LaTeX Environments]]
+    - [[#Node_Properties][4.3.10. Node Properties]]
+    - [[#Paragraphs][4.3.11. Paragraphs]]
+    - [[#Table_Rows][4.3.12. Table Rows]]
+- [[#Objects][5. Objects]]
+  - [[#Entities][5.1. Entities]]
+  - [[#LaTeX_Fragments][5.2. LaTeX Fragments]]
+  - [[#Export_Snippets][5.3. Export Snippets]]
+  - [[#Footnote_References][5.4. Footnote References]]
+  - [[#Citations][5.5. Citations]]
+  - [[#Citation_References][5.6. Citation references]]
+  - [[#Inline_Babel_Calls][5.7. Inline Babel Calls]]
+  - [[#Source_Blocks][5.8. Inline Source Blocks]]
+  - [[#Line_Breaks][5.9. Line Breaks]]
+  - [[#Links][5.10. Links]]
+    - [[#org5d0e2e1][5.10.1. Radio Links]]
+    - [[#org394b83a][5.10.2. Plain links]]
+    - [[#orge6ff86e][5.10.3. Angle links]]
+    - [[#org2c3a5c5][5.10.4. Regular links]]
+  - [[#Macros][5.11. Macros]]
+  - [[#Targets_and_Radio_Targets][5.12. Targets and Radio Targets]]
+  - [[#Statistics_Cookies][5.13. Statistics Cookies]]
+  - [[#Subscript_and_Superscript][5.14. Subscript and Superscript]]
+  - [[#Table_Cells][5.15. Table Cells]]
+  - [[#Timestamps][5.16. Timestamps]]
+  - [[#Emphasis_Markers][5.17. Text Markup]]
+    - [[#Plain_Text][5.17.1. Plain Text]]
+- [[#org906a7e3][6. Appendix]]
+  - [[#Entities_List][6.1. Org Entities]]
+
+<<outline-container-org254a658>>
+** 1. Introduction
+:PROPERTIES:
+:CUSTOM_ID: org254a658
+:END:
+
+<<text-1>>
+Org is a plaintext format composed of simple, yet versatile, forms which
+represent formatting and structural information. It is designed to be
+both intuitive to use, and capable of representing complex documents.
+Like Markdown
+([[https://datatracker.ietf.org/doc/html/rfc7763][RFC7763]]), Org may be
+considered a lightweight markup language. However, while Markdown refers
+to a collection of similar syntaxes, Org is a single syntax.
+
+This document describes and comments on Org syntax as it is currently
+read by its parser (=org-element.el=) and, therefore, by the export
+framework. This is intended as a technical document for developers and
+those particularly interested in the syntax. Most users will be better
+served by [[https://orgmode.org/manual/][the Org manual]].
+
+<<outline-container-org84d3c6b>>
+** 2. Terminology and conventions
+:PROPERTIES:
+:CUSTOM_ID: org84d3c6b
+:END:
+
+<<text-2>>
+
+<<outline-container-org1b5853f>>
+*** 2.1. Objects and Elements
+:PROPERTIES:
+:CUSTOM_ID: org1b5853f
+:END:
+
+<<text-2-1>>
+The components of this syntax can be divided into two classes:
+“[[#Objects][objects]]” and “[[#Elements][elements]]”. To better
+understand these classes, consider the paragraph as a unit of
+measurement. /Elements/ are syntactic components that exist at the same
+or greater scope than a paragraph, i.e. which could not be contained by
+a paragraph. Conversely, /objects/ are syntactic components that exist
+with a smaller scope than a paragraph, and so can be contained within a
+paragraph.
+
+Elements can be stratified into “[[#Headings][headings]]”,
+“[[#Sections][sections]]”, “[[#Greater_Elements][greater elements]]”,
+and “[[#Lesser_Elements][lesser elements]]”, from broadest scope to
+narrowest. Along with objects, these sub-classes define categories of
+syntactic environments. Only [[#Headings][headings]],
+[[#Sections][sections]], [[#Property_Drawers][property drawers]], and
+[[#Planning][planning lines]] are context-free^{[[#fn.1][1]],}
+^{[[#fn.2][2]]}, every other syntactic component only exists within
+specific environments. This is a core concept of the syntax.
+
+Expanding on the stratification of elements, lesser elements are
+elements that cannot contain any other elements. As such, a paragraph is
+considered a lesser element. Greater elements can themselves contain
+greater elements or lesser elements. Sections contain both greater and
+lesser elements, and headings can contain a section and other headings.
+
+<<outline-container-Blanks>>
+*** 2.2. Blank lines
+:PROPERTIES:
+:CUSTOM_ID: Blanks
+:END:
+
+<<text-Blanks>>
+A line containing only spaces, tabs, newlines, and line feeds (=\t\n\r=)
+is considered a /blank line/. Blank lines can be used to separate
+paragraphs and other elements.
+
+Blank lines are considered a part of a preceding element.
+
+A simple example is blank lines after a drawer:
+
+#+name: orga0615cd
+#+begin_example
+:drawer:
+Text.
+:end:
+
+
+The blank lines above are considered a part of the drawer.
+#+end_example
+
+However, in some cases, multiple Org elements may be candidates to “own”
+the blank lines:
+
+#+name: org12f1921
+#+begin_example
+,* Heading
+Paragraph inside heading, blank lines may be considered a part of this
+paragraph or, similarly, a part of the parent section or heading.
+
+
+,* Another heading
+#+end_example
+
+By convention, with the exception of [[#Items][list items]] and
+[[#Footnote_Definitions][footnote definitions]] blank lines belong to
+the preceding element with the narrowest possible scope.
+
+In the above example, blank lines are considered a direct part of the
+paragraph, not the heading or section:
+
+#+begin_example
+(heading (section (paragraph <blank lines> ...)))
+#+end_example
+
+Blank lines at the end of [[#Items][list items]] and
+[[#Footnote_Definitions][footnote definitions]] do not include the
+containing elements because list items and footnote definitions are
+using blank lines as a part of their syntax definition:
+
+#+name: orgb2d2c14
+#+begin_example
+- Item 1
+
+- Item 2
+  :drawer:
+  inside item 2
+  :end:
+
+
+The above list item ends with two consequative blank lines.
+So, we do not include these structurally important blank lines into
+the inner elements inside the item.
+#+end_example
+
+<<outline-container-org5e217e0>>
+*** 2.3. Indentation
+:PROPERTIES:
+:CUSTOM_ID: org5e217e0
+:END:
+
+<<text-2-3>>
+Indentation consists of a series of space and tab characters at the
+beginning of a line. Most elements can be indentated, with the exception
+of [[#Headings][headings]], [[#Inlinetasks][inlinetasks]],
+[[#Footnote_Definitions][footnote definitions]], and
+[[#Diary_Sexp][diary sexps]]. Indentation is only syntactically
+meaningful in plain lists, where indentation is calculated assuming that
+space characters occupy a single character and tab characters occupy 8
+characters.
+
+The common indentation of all the lines within an element is discarded.
+This also applies to single-line elements.
+
+*Examples*
+
+#+name: orge21e5a9
+#+begin_example
+    This paragraph will not contain
+    a long sequence of spaces before "a".
+
+    This paragraph does not have leading spaces according to the parser.
+
+    ,#+begin_src emacs-lisp
+      (+ 1 2)
+    ,#+end_src
+    The above source block preserves two leading spaces inside the code
+    after removing the common indentation.
+#+end_example
+
+<<outline-container-orga73e507>>
+*** 2.4. The minimal and standard sets of objects
+:PROPERTIES:
+:CUSTOM_ID: orga73e507
+:END:
+
+<<text-2-4>>
+To simplify references to common collections of objects, we define two
+useful sets. The /minimal set of objects/ refers to [[#Plain_Text][plain
+text]], [[#Emphasis_Markers][text markup]], [[#Entities][entities]],
+[[#LaTeX_Fragments][LaTeX fragments]],
+[[#Subscript_and_Superscript][superscripts and subscripts]]. The
+/standard set of objects/ refers to the entire set of objects, excluding
+[[#Citation_References][citation references]] and [[#Table_Cells][table
+cells]].
+
+<<outline-container-org9ff0a9c>>
+*** 2.5. Syntax patterns
+:PROPERTIES:
+:CUSTOM_ID: org9ff0a9c
+:END:
+
+<<text-2-5>>
+
+<<outline-container-org15d2894>>
+**** 2.5.1. General form
+:PROPERTIES:
+:CUSTOM_ID: org15d2894
+:END:
+
+<<text-2-5-1>>
+Most elements and objects will be described with the help of syntax
+patterns, consisting of a series of named tokens written in uppercase
+and separated by a space, like so:
+
+#+name: orge9d0c6a
+#+begin_example
+TOKEN1 TOKEN2
+#+end_example
+
+These tokens are often named roughly according to their semantic
+meaning, For instance, “KEY” and “VALUE” when describing
+[[#Keywords][Keywords]]. Tokens will be specified as either a string, or
+a series of elements or objects.
+
+<<org3010d70>>
+Unless otherwise specified, a space in a pattern represents one or more
+horizontal whitespace characters.
+
+Patterns will often also contain static structures that serve to
+differentiate a particular element or object type from others, but have
+no semantic meaning. These are simply included in the pattern verbatim.
+For instance, if a pattern consists of two plus signs (=+=) immediately
+followed by a TOKEN it would be written like so:
+
+#+name: orge5f6cf7
+#+begin_example
+++TOKEN
+#+end_example
+
+Since tokens are written in uppercase, any letters in static structures
+are distinguished by being written in lowercase.
+
+<<outline-container-Special_Tokens>>
+**** 2.5.2. Special tokens
+:PROPERTIES:
+:CUSTOM_ID: Special_Tokens
+:END:
+
+<<text-Special_Tokens>>
+In a few cases, an instance of an element or object must be preceded or
+succeeded by a certain pattern, which is not itself part of the element
+or object. There patterns are specified using the /PRE/ and /POST/
+tokens respectively, like so:
+
+#+name: orgada9370
+#+begin_example
+PRE TOKEN POST
+#+end_example
+
+/PRE/ and /POST/ tokens are only matched against the contents of the
+containing object. For example, /bold/ object within link description is
+only matched against the description text =*bold* description=, not
+against the full containing link text:
+
+#+begin_example
+[[https://orgmode.org][*bold* description]]
+#+end_example
+
+<<outline-container-org2f5c140>>
+**** 2.5.3. Case significance
+:PROPERTIES:
+:CUSTOM_ID: org2f5c140
+:END:
+
+<<text-2-5-3>>
+In this document, unless specified otherwise, case is insignificant.
+
+<<outline-container-orge7279f5>>
+*** 2.6. References to lisp variables
+:PROPERTIES:
+:CUSTOM_ID: orge7279f5
+:END:
+
+<<text-2-6>>
+Some parts of Org syntax are configurable via special keywords in the
+file or via Elisp settings in Emacs. This syntax document exposes these
+variable parts by referencing to Elisp variables.
+
+Elisp programs utilizing the syntax may directly refer to the Elisp
+variable values. Other users of this syntax reference can use to the
+default values we provide here.
+
+<<outline-container-orgf467851>>
+** 3. General structure of Org document
+:PROPERTIES:
+:CUSTOM_ID: orgf467851
+:END:
+
+<<text-3>>
+Any Org document is represented by a sequence of
+[[#Elements][elements]], that can recursively contain other
+[[#Elements][elements]] and/or [[#Objects][objects]].
+
+An example document below can be represented as recursive syntax tree:
+
+#+name: org868a09b
+#+begin_example
+,#+title: An example Org document (this line is a keyword)
+
+The document begins with optional zeroth section (everything before
+the first heading), followed by a sequence of headings. (paragraph)
+
+
+    :note:
+    Zeroth section can contain other elements - keyword, paragraph,
+    and drawer in this example.
+
+    The drawer, in turn, contains the previous and this paragraph; and
+    this paragraph consists of plain text objects, and a single *bold
+    markup*.
+    :end:
+
+,* Heading
+
+Contains an optional section that is, similar to zeroth section,
+followed by other subheadings.
+
+,** Sub-heading 1 with no section and no child headings
+,** Sub-heading 2
+... has a section, but not child subheadings.
+
+,* Another heading
+#+end_example
+
+#+begin_example
+(org-data ...
+ (zeroth-section ...
+  (keyword ...)
+  (paragraph ...)
+  (drawer
+   (paragraph ...)
+   (pragraph (plain-text) (bold (plain-text)))))
+ (heading
+  (section (paragraph ...))
+  (heading)
+  (heading (section ...)))
+ (heading))
+#+end_example
+
+<<outline-container-Elements>>
+** 4. Elements
+:PROPERTIES:
+:CUSTOM_ID: Elements
+:END:
+
+<<text-Elements>>
+The most general representation of an Org syntax element is a sequence
+of markup defining the element itself, its contents, and the
+[[#Blanks][blank lines]] after.
+
+#+name: org32530b8
+#+begin_example
+BEGIN
+CONTENTS
+END
+BLANK
+#+end_example
+
+or
+
+#+name: org20addee
+#+begin_example
+BEGIN
+VALUE
+END
+BLANK
+#+end_example
+
+- BEGIN :: Opening markup, belong to the element.
+- CONTENTS :: Element contents - a sequence of child elements/objects.
+- VALUE :: Element value, taken verbatim, when no child elements/objects
+  are allowed.
+- END :: Closing markup, belong to the element.
+- BLANK :: Blank lines after, belongs to the element.
+
+Not every Org element contains all the above components. An example
+below demonstrates structure of some common Org elements, marking the
+parts corresponding to the above structure.
+
+#+name: org7a9a733
+#+begin_example
+,* Heading title is a part of the headline element itself <BEGIN>
+
+
+Text inside heading is considered a part of its CONTENTS and can
+contain other elements recursively.  This paragraph only has CONTENTS,
+no BEGIN, no END, and a BLANK line.
+
+:drawer:
+The same works at the deeper levels, with this drawer having
+=:drawer:= line as BEGIN, this paragraph belonging to drawer CONTENTS,
+=:end:= representing END, and no BLANK after.
+:end:
+,#+begin_comment
+A comment is taken verbatim, with this text not parsed recursively and
+considered a part of the comment block element itself.
+=#+begin_commend= is BEGIN, =#+end_comment= - END, and VALUE is this
+text.
+,#+end_comment
+This is the end of the heading, no END exists for headings.
+#+end_example
+
+<<outline-container-Headings_and_Sections>>
+*** 4.1. Headings and Sections
+:PROPERTIES:
+:CUSTOM_ID: Headings_and_Sections
+:END:
+
+<<text-Headings_and_Sections>>
+
+<<outline-container-Headings>>
+**** 4.1.1. Headings
+:PROPERTIES:
+:CUSTOM_ID: Headings
+:END:
+
+<<text-Headings>>
+A Heading is an /unindented/ line structured according to the following
+pattern:
+
+#+name: orgc26eb5c
+#+begin_example
+STARS KEYWORD PRIORITY COMMENT TITLE TAGS
+#+end_example
+
+- STARS :: A string consisting of one or more asterisks (up to
+  =org-inlinetask-min-level=^{[[#fn.oiml][3]]} if the =org-inlinetask=
+  library is loaded) suffixed by a space character. The number of
+  asterisks is used to define the level of the heading. Space character
+  after asterisks is mandatory.
+- KEYWORD (optional) :: A string which is a member of
+  =org-todo-keywords-1=^{[[#fn.otkw1][4]]}. Case is significant. This is
+  called a “todo keyword”. ^{[[#fn.5][5]]}
+- PRIORITY (optional) :: A single alphanumeric character preceded by a
+  hash sign =#= and enclosed within square brackets (e.g. =[#A]= or
+  =[#1]=). This is called a “priority cookie”.
+- COMMENT (optional) :: String “COMMENT”. Case is significant.
+- TITLE (optional) :: A series of objects from the
+  [[#orge565377][standard set]], excluding line break objects. It is
+  matched after =KEYWORD= and =PRIORITY=.
+- TAGS (optional) :: A series of colon-separated strings consisting of
+  alpha-numeric characters, underscores, at signs, hash signs, and
+  percent signs (=_@#%=).
+
+*Examples*
+
+#+name: orgde553dc
+#+begin_example
+,*
+,** DONE
+,*** Some e-mail
+,**** TODO [#A] COMMENT Title :tag:a2%:
+#+end_example
+
+If heading has =COMMENT=, it will be considered as “commented”.
+
+If the TITLE of a heading is exactly the value of =org-footnote-section=
+(=Footnotes= by default), it will be considered as a “footnote section”.
+Case is significant.
+
+If =ARCHIVE= is one of the tags given, the heading will be considered as
+“archived”. Case is significant.
+
+All content following a heading --- up to either the next heading, or
+the end of the document, forms a section contained by the heading. This
+is optional, as the next heading may occur immediately in which case no
+section is formed.
+
+<<outline-container-Sections>>
+**** 4.1.2. Sections
+:PROPERTIES:
+:CUSTOM_ID: Sections
+:END:
+
+<<text-Sections>>
+Sections contain one or more non-heading elements. With the exception of
+the text before the first heading in a document (which is considered a
+section), sections only occur within headings.
+
+*Example*
+
+Consider the following document:
+
+#+name: orgc721e91
+#+begin_example
+An introduction.
+,* A Heading
+Some text.
+,** Sub-Topic 1
+,** Sub-Topic 2
+,*** Additional entry
+#+end_example
+
+Its internal structure could be summarized as:
+
+#+name: orgf7b46df
+#+begin_example
+(document
+ (section)
+ (heading
+  (section)
+  (heading)
+  (heading
+   (heading))))
+#+end_example
+
+Sections do not include blank lines immediately following the parent
+heading. It also means that headings containing only blank lines do not
+contain any section.
+
+#+name: orgf7658b3
+#+begin_example
+,* Heading without section, but with blank lines
+
+,* Another heading with section
+
+This is a section. It includes everything from "This is" down to "Last
+heading", including the trailing blank lines.
+
+,* Last heading
+#+end_example
+
+[[#Zeroth_section][Zeroth section]] follows the same rule.
+
+<<outline-container-Zeroth_section>>
+**** 4.1.3. The zeroth section
+:PROPERTIES:
+:CUSTOM_ID: Zeroth_section
+:END:
+
+<<text-Zeroth_section>>
+All elements before the first heading in a document lie in a special
+section called the /zeroth section/. It may be preceded by blank lines.
+Unlike a normal section, the zeroth section can immediately contain a
+[[#Property_Drawers][property drawer]], optionally preceded by
+[[#Comments][comments]]. It cannot however, contain
+[[#Planning][planning]].
+
+<<outline-container-Greater_Elements>>
+*** 4.2. Greater Elements
+:PROPERTIES:
+:CUSTOM_ID: Greater_Elements
+:END:
+
+<<text-Greater_Elements>>
+Unless otherwise specified, greater elements can directly contain any
+greater or [[#Lesser_Elements][lesser element]] except:
+
+- Elements of their own type.
+- [[#Planning][Planning]], which may only occur in a
+  [[#Headings][heading]].
+- [[#Property_Drawers][Property drawers]], which may only occur in a
+  [[#Headings][heading]] or the [[#Zeroth_section][zeroth section]].
+- [[#Node_Properties][Node properties]], which can only be found in
+  [[#Property_Drawers][property drawers]].
+- [[#Items][Items]], which may only occur in [[#Plain_Lists][plain
+  lists]].
+- [[#Table_Rows][Table rows]], which may only occur in
+  [[#Tables][tables]].
+
+<<outline-container-Greater_Blocks>>
+**** 4.2.1. Greater Blocks
+:PROPERTIES:
+:CUSTOM_ID: Greater_Blocks
+:END:
+
+<<text-Greater_Blocks>>
+Greater blocks are structured according to the following pattern:
+
+#+name: org6539738
+#+begin_example
+,#+begin_NAME PARAMETERS
+CONTENTS
+,#+end_NAME
+#+end_example
+
+- NAME :: A string consisting of any non-whitespace characters, which is
+  not the NAME of a [[#Blocks][lesser block]]. Greater blocks are
+  treated differently based on their subtype, which is determined by the
+  NAME as follows:
+  - =center=, a “center block”
+  - =quote=, a “quote block”
+  - any other value, a “special block”
+- PARAMETERS (optional) :: A string consisting of any characters other
+  than a newline.
+- CONTENTS :: A collection of zero or more elements, subject to the
+  following condition:
+  - No line may start with =#+end_NAME=.
+
+<<outline-container-Drawers>>
+**** 4.2.2. Drawers and Property Drawers
+:PROPERTIES:
+:CUSTOM_ID: Drawers
+:END:
+
+<<text-Drawers>>
+Drawers are structured according to the following pattern:
+
+#+name: orgad23fb8
+#+begin_example
+:NAME:
+CONTENTS
+:end:
+#+end_example
+
+- NAME :: A string consisting of word-constituent characters, hyphens
+  and underscores (=-_=).
+- CONTENTS :: A collection of zero or more elements, except another
+  drawer.
+
+<<outline-container-Dynamic_Blocks>>
+**** 4.2.3. Dynamic Blocks
+:PROPERTIES:
+:CUSTOM_ID: Dynamic_Blocks
+:END:
+
+<<text-Dynamic_Blocks>>
+Dynamic blocks are structured according to the following pattern:
+
+#+name: org8fb7044
+#+begin_example
+,#+begin: NAME PARAMETERS
+CONTENTS
+,#+end:
+#+end_example
+
+- NAME :: A string consisting of non-whitespace characters.
+- PARAMETERS (optional) :: A string consisting of any characters but a
+  newline.
+- CONTENTS :: A collection of zero or more elements, except another
+  dynamic block.
+
+<<outline-container-Footnote_Definitions>>
+**** 4.2.4. Footnote Definitions
+:PROPERTIES:
+:CUSTOM_ID: Footnote_Definitions
+:END:
+
+<<text-Footnote_Definitions>>
+Footnote definitions must occur at the start of an /unindented/ line,
+and are structured according to the following pattern:
+
+#+name: orgfb6befd
+#+begin_example
+[fn:LABEL] CONTENTS
+#+end_example
+
+- LABEL :: Either a number or an instance of the pattern =WORD=, where
+  =WORD= represents a string consisting of word-constituent characters,
+  hyphens and underscores (=-_=).
+- CONTENTS (optional) :: A collection of zero or more elements. It ends
+  at the next footnote definition, the next heading, two consecutive
+  blank lines, or the end of buffer.
+
+*Examples*
+
+#+name: org2c6eb77
+#+begin_example
+[fn:1] A short footnote.
+
+[fn:2] This is a longer footnote.
+
+It even contains a single blank line.
+#+end_example
+
+<<outline-container-Inlinetasks>>
+**** 4.2.5. Inlinetasks
+:PROPERTIES:
+:CUSTOM_ID: Inlinetasks
+:END:
+
+<<text-Inlinetasks>>
+Inlinetasks are syntactically a [[#Headings][heading]] with a level of
+at least =org-inlinetask-min-level=^{[[#fn.oiml][3]]}, i.e. starting
+with at least that many asterisks.
+
+Optionally, inlinetasks can be ended with a second heading with a level
+of at least =org-inlinetask-min-level=^{[[#fn.oiml][3]]}, with no
+optional components (i.e. only STARS and TITLE provided) and the string
+=END= as the TITLE. This allows the inlinetask to contain elements.
+
+*Examples*
+
+#+name: org5e81b82
+#+begin_example
+,*************** TODO some tiny task
+This is a paragraph, it lies outside the inlinetask above.
+,*************** TODO some small task
+                 DEADLINE: <2009-03-30 Mon>
+                 :PROPERTIES:
+                   :SOMETHING: or other
+                 :END:
+                 And here is some extra text
+,*************** END
+#+end_example
+
+Inlinetasks are only recognized after the =org-inlinetask= library is
+loaded.
+
+<<outline-container-Items>>
+**** 4.2.6. Items
+:PROPERTIES:
+:CUSTOM_ID: Items
+:END:
+
+<<text-Items>>
+Items are structured according to the following pattern:
+
+#+name: org87f163d
+#+begin_example
+BULLET COUNTER-SET CHECK-BOX TAG CONTENTS
+#+end_example
+
+- BULLET :: One of the two forms below, followed by either a whitespace
+  character or line ending.
+  - An asterisk (=*=), hyphen (=-=), or plus sign (=+=) character. Note
+    that asterisk =*= character starting at the beginning of line and
+    followed by whitespace cannot be an item as it would match a
+    [[#Headings][heading]].
+  - Either the pattern =COUNTER.= or =COUNTER)=.
+    - COUNTER :: Either a number or a single letter (a-z).
+- COUNTER-SET (optional) :: An instance of the pattern =[@COUNTER]=.
+- CHECK-BOX (optional) :: A single whitespace character, an =X=
+  character, or a hyphen enclosed by square brackets (i.e. =[ ]=, =[X]=,
+  or =[-]=).
+- TAG (optional) :: An instance of the pattern =TAG-TEXT ::= where
+  =TAG-TEXT= is the text up until the last occurrence of the substring
+  =" :: "= (two colons surrounded by whitespace, without the quotes) on
+  that line. =TAG-TEXT= is then parsed with the [[#orge565377][standard
+  set]] of objects.
+- CONTENTS (optional) :: A collection of zero or more elements, ending
+  at the first instance of one of the following:
+  - The next item.
+  - The first line less or equally indented than the starting line, not
+    counting lines within other non-paragraph elements or
+    [[#Inlinetasks][inlinetask]] boundaries.
+  - Two consecutive blank lines.
+
+*Examples*
+
+#+name: org3757be8
+#+begin_example
+- item
+3. [@3] set to three
++ [-] tag :: item contents
+ ,* item, note whitespace in front
+,* not an item, but heading - heading takes precedence
+#+end_example
+
+<<outline-container-Plain_Lists>>
+**** 4.2.7. Plain Lists
+:PROPERTIES:
+:CUSTOM_ID: Plain_Lists
+:END:
+
+<<text-Plain_Lists>>
+A /plain list/ is a set of consecutive [[#Items][items]] of the same
+indentation.
+
+<<orgc0b6bdd>>
+Note that item elements can contain other lists. This allows creating
+nested lists.
+
+If first item in a plain list has a COUNTER in its BULLET, the plain
+list will be an “ordered plain-list”. If it contains a TAG, it will be a
+“descriptive list”. Otherwise, it will be an “unordered list”.
+
+For example, consider the following excerpt of an Org document:
+
+#+name: orgdc08559
+#+begin_example
+1. item 1
+2. [X] item 2
+   - some tag :: item 2.1
+#+end_example
+
+Its internal structure is as follows:
+
+#+name: org5f06a41
+#+begin_example
+(ordered-plain-list
+ (item
+   (paragraph))
+ (item
+  (paragraph)
+  (descriptive-plain-list
+   (item
+     (paragraph)))))
+#+end_example
+
+<<outline-container-Property_Drawers>>
+**** 4.2.8. Property Drawers
+:PROPERTIES:
+:CUSTOM_ID: Property_Drawers
+:END:
+
+<<text-Property_Drawers>>
+Property drawers are a special type of [[#Drawers][drawer]] containing
+properties attached to a [[#Headings][heading]] or
+[[#Inlinetasks][inlinetask]]. They are located right after a heading and
+its [[#Planning][planning]] information, as shown below:
+
+#+name: org9e2c67e
+#+begin_example
+HEADLINE
+PROPERTYDRAWER
+
+HEADLINE
+PLANNING
+PROPERTYDRAWER
+#+end_example
+
+Property drawer can also be present in [[#Zeroth_section][zeroth
+section]]:
+
+#+name: orgaabc738
+#+begin_example
+BEGINNING-OF-FILE
+BLANK-LINES
+COMMENT
+PROPERTYDRAWER
+#+end_example
+
+=BLANK-LINES= and =COMMENT= are optional.
+
+Property Drawers are structured according to the following pattern:
+
+#+name: orgcb8c5fb
+#+begin_example
+:properties:
+CONTENTS
+:end:
+#+end_example
+
+- CONTENTS :: A collection of zero or more [[#Node_Properties][node
+  properties]], not separated by blank lines.
+
+*Example*
+
+#+name: org55b08b0
+#+begin_example
+,* Heading
+:PROPERTIES:
+:CUSTOM_ID: someid
+:END:
+#+end_example
+
+<<outline-container-Tables>>
+**** 4.2.9. Tables
+:PROPERTIES:
+:CUSTOM_ID: Tables
+:END:
+
+<<text-Tables>>
+Tables are started by a line beginning with either:
+
+- A vertical bar (=|=), forming an “org” type table.
+- The string =+-= followed by a sequence of plus (=+=) and minus (=-=)
+  signs, forming a “table.el” type table.
+
+Tables cannot be immediately preceded by such lines, as the current line
+would the be part of the earlier table.
+
+Org tables contain [[#Table_Rows][table rows]], and end at the first
+line not starting with a vertical bar. An Org table can be followed by a
+number of =#+TBLFM: FORMULAS= lines, where =FORMULAS= represents a
+string consisting of any characters but a newline.
+
+Table.el tables end at the first line not starting with either a
+vertical line (=|=) or a plus sign (=+=).
+
+*Examples*
+
+#+name: orge42e2ef
+#+begin_example
+Org table:
+| Name  | Phone | Age | Age - 24 |
+|-------+-------+-----+----------|
+| Peter |  1234 |  24 |       -1 |
+| Anna  |  4321 |  25 |        7 |
+| Susan |  9876 |  18 |          |
+,#+TBLFM: @<$4..@>>$4 = $3 - @+1$3
+
+Table.el table:
++------+-----+-----+
+|Name  |Phone|Age  |
++------+-----+-----+
+|Peter |1234 |24   |
++------+-----+-----+
+|Anna  |4321 |25   |
+|Turner|     |     |
++------+-----+-----+
+#+end_example
+
+<<outline-container-Lesser_Elements>>
+*** 4.3. Lesser Elements
+:PROPERTIES:
+:CUSTOM_ID: Lesser_Elements
+:END:
+
+<<text-Lesser_Elements>>
+Lesser elements cannot contain any other element.
+
+Only [[#Keywords][keywords]] which are a member of
+=org-element-parsed-keywords=^{[[#fn.oepkw][6]]}, [[#Blocks][verse
+blocks]], [[#Paragraphs][paragraphs]] or [[#Table_Rows][table rows]] can
+contain objects.
+
+<<outline-container-Blocks>>
+**** 4.3.1. Blocks
+:PROPERTIES:
+:CUSTOM_ID: Blocks
+:END:
+
+<<text-Blocks>>
+Like [[#Greater_Blocks][greater blocks]], blocks are structured
+according to the following pattern:
+
+#+name: org6d4a6d5
+#+begin_example
+,#+begin_NAME DATA
+CONTENTS
+,#+end_NAME
+#+end_example
+
+- NAME :: A string consisting of any non-whitespace characters. The type
+  of the block is determined based on the value as follows:
+  - =comment=, a “comment block”,
+  - =example=, an “example block”,
+  - =export=, an “export block”,
+  - =src=, a “source block”,
+  - =verse=, a “verse block”. The NAME must be one of these values.
+    Otherwise, the pattern forms a greater block.
+- DATA (optional) :: A string consisting of any characters but a
+  newline.
+  - In the case of an export block, this is mandatory and must be a
+    single word.
+  - In the case of a source block, this is mandatory and must follow the
+    pattern =LANGUAGE SWITCHES ARGUMENTS= with:
+    - LANGUAGE :: A string consisting of any non-whitespace characters
+    - SWITCHES :: Any number of SWITCH patterns, separated by a single
+      space character
+      - SWITCH :: Either the pattern =-l "FORMAT"= where =FORMAT=
+        represents a string consisting of any characters but a double
+        quote (="=) or newline, or the pattern =-S= or =+S= where =S=
+        represents a single alphabetic character
+    - ARGUMENTS :: A string consisting of any character but a newline.
+- CONTENTS (optional) :: A string consisting of any characters
+  (including newlines) subject to the same two conditions of greater
+  block's CONTENTS, i.e.
+
+  - No line may start with =#+end_NAME=.
+  - Lines beginning with an asterisk must be quoted by a comma (=,*=)
+    and lines beginning with =#+= may be quoted by a comma when
+    necessary (=#+=).
+
+  CONTENTS will contain Org objects and not support comma-quoting when
+  the block is a verse block, it is otherwise not parsed.
+
+*Example*
+
+#+name: org8dca600
+#+begin_example
+,#+begin_verse
+    There was an old man of the Cape
+   Who made himself garments of crepe.
+       When asked, “Do they tear?”
+      He replied, “Here and there,
+ But they’re perfectly splendid for shape!”
+,#+end_verse
+#+end_example
+
+#+name: orgbf9a99d
+#+begin_example
+,#+begin_src emacs-lisp
+"This string
+,* has "*" escaped.
+Otherwise, '* has "*" escaped.' would be treated as a heading (which
+is context-free)."
+
+"#+ lines may or may not need to be escaped:
+,#+end_src if not escaped, would be this source block.
+However,
+,#+keyword: does not interfere with code block end and may be left as is.
+,#+keyword may be escaped as well, optionally - parser removes all the
+commas in ,* and ,#+ lines."
+,#+end_src
+#+end_example
+
+<<outline-container-Clocks>>
+**** 4.3.2. Clock
+:PROPERTIES:
+:CUSTOM_ID: Clocks
+:END:
+
+<<text-Clocks>>
+A clock element is structured according to the following pattern:
+
+#+name: org06735b8
+#+begin_example
+clock: INACTIVE-TIMESTAMP
+clock: INACTIVE-TIMESTAMP-RANGE DURATION
+clock: DURATION
+#+end_example
+
+- INACTIVE-TIMESTAMP :: An inactive [[#Timestamps][timestamp]] object.
+- INACTIVE-TIMESTAMP-RANGE :: An inactive range
+  [[#Timestamps][timestamp]] object.
+- DURATION :: An instance of the pattern ==> HH:MM=.
+  - HH :: A number consisting of any number of digits.
+  - MM :: A two digit number.
+
+*Examples*
+
+#+name: orgadb676e
+#+begin_example
+clock: [2024-10-12]
+CLOCK: [2019-03-25 Mon 10:49]--[2019-03-25 Mon 11:31] =>  0:42
+clock: => 12:30
+#+end_example
+
+<<outline-container-Diary_Sexp>>
+**** 4.3.3. Diary Sexp
+:PROPERTIES:
+:CUSTOM_ID: Diary_Sexp
+:END:
+
+<<text-Diary_Sexp>>
+A diary sexp^{[[#fn.7][7]]} element is an /unindented/ line structured
+according to the following pattern:
+
+#+name: org0c42f4b
+#+begin_example
+%%SEXP
+#+end_example
+
+- SEXP :: A string starting with an open parenthesis =(=, with balanced
+  opening and closing parentheses.
+
+*Example*
+
+#+name: orgbf14995
+#+begin_example
+%%(org-calendar-holiday)
+#+end_example
+
+<<outline-container-Planning>>
+**** 4.3.4. Planning
+:PROPERTIES:
+:CUSTOM_ID: Planning
+:END:
+
+<<text-Planning>>
+A planning element is structured according to the following pattern:
+
+#+name: org4a78ab1
+#+begin_example
+HEADING
+PLANNING
+#+end_example
+
+- HEADING :: A [[#Headings][heading]] element.
+- PLANNING :: A line consisting of one or more =KEYWORD: TIMESTAMP=
+  patterns (termed “info” patterns).
+  - KEYWORD :: Either the string =DEADLINE=, =SCHEDULED=, or =CLOSED=.
+  - TIMESTAMP :: A [[#Timestamps][timestamp]] object.
+
+PLANNING must directly follow HEADING without any blank lines in
+between.
+
+When a keyword is repeated in a planning element, the last instance of
+it has priority.
+
+*Example*
+
+#+name: org5a40048
+#+begin_example
+,*** TODO watch "The Matrix"
+    SCHEDULED: <1999-03-31 Wed>
+,*** TODO take over the world with Org mode
+    SCHEDULED: <2006-03-12 Sun> DEADLINE: <2034-03-22 Wed>
+#+end_example
+
+<<outline-container-Comments>>
+**** 4.3.5. Comments
+:PROPERTIES:
+:CUSTOM_ID: Comments
+:END:
+
+<<text-Comments>>
+A “comment line” starts with a hash character (=#=) and either a
+whitespace character or the immediate end of the line.
+
+Comments consist of one or more consecutive comment lines.
+
+*Example*
+
+#+name: org5c21476
+#+begin_example
+# Just a comment
+#
+# Over multiple lines
+#+end_example
+
+<<outline-container-Fixed_Width_Areas>>
+**** 4.3.6. Fixed Width Areas
+:PROPERTIES:
+:CUSTOM_ID: Fixed_Width_Areas
+:END:
+
+<<text-Fixed_Width_Areas>>
+A “fixed-width line” starts with a colon character (=:=) and either a
+space character or the immediate end of the line.
+
+Fixed-width areas consist of one or more consecutive fixed-width lines.
+
+*Example*
+
+#+name: org3cfaa71
+#+begin_example
+: This is a
+: fixed width area
+#+end_example
+
+<<outline-container-Horizontal_Rules>>
+**** 4.3.7. Horizontal Rules
+:PROPERTIES:
+:CUSTOM_ID: Horizontal_Rules
+:END:
+
+<<text-Horizontal_Rules>>
+A horizontal rule is formed by a line consisting of at least five
+consecutive hyphens (=-----=).
+
+<<outline-container-Keywords>>
+**** 4.3.8. Keywords
+:PROPERTIES:
+:CUSTOM_ID: Keywords
+:END:
+
+<<text-Keywords>>
+Keywords are structured according to the following pattern:
+
+#+name: org423790e
+#+begin_example
+,#+KEY: VALUE
+#+end_example
+
+- KEY :: A string consisting of any non-whitespace characters, other
+  than =call= (which would forms a [[#Babel_Call][babel call]] element).
+- VALUE :: A string consisting of any characters but a newline.
+
+When KEY is a member of
+=org-element-parsed-keywords=^{[[#fn.oepkw][6]]}, VALUE can contain the
+[[#orge565377][standard set]] objects, excluding
+[[#Footnote_References][footnote references]].
+
+Note that while instances of this pattern are preferentially parsed as
+[[#Affiliated_Keywords][affiliated keywords]], a keyword with the same
+KEY as an affiliated keyword may occur so long as it is not immediately
+preceding a valid element that can be affiliated. For example, an
+instance of =#+caption: hi= followed by a blank line will be parsed as a
+keyword, not an affiliated keyword.
+
+1. <<Babel_Call>>Babel Call\\
+
+   <<text-Babel_Call>>
+   Babel calls are structured according to one of the following
+   patterns:
+
+   #+name: orgb9585dd
+   #+begin_example
+   ,#+call: NAME(ARGUMENTS)
+   ,#+call: NAME[HEADER1](ARGUMENTS)
+   ,#+call: NAME(ARGUMENTS)[HEADER2]
+   ,#+call: NAME[HEADER1](ARGUMENTS)[HEADER2]
+   #+end_example
+
+   - NAME :: A string consisting of any non-newline characters except
+     for square brackets, or parentheses (=[]()=).
+   - ARGUMENTS (optional) :: A string consisting of any non-newline
+     characters. Opening and closing parenthesis must be balanced.
+   - HEADER1 (optional), HEADER2 (optional) :: A string consisting of
+     any non-newline characters. Opening and closing square brackets
+     must be balanced.
+
+2. <<Affiliated_Keywords>>Affiliated Keywords\\
+
+   <<text-Affiliated_Keywords>>
+   With the exception of [[#Comments][comments]], [[#Clocks][clocks]],
+   [[#Headings][headings]], [[#Inlinetasks][inlinetasks]],
+   [[#Items][items]], [[#Node_Properties][node properties]],
+   [[#Planning][planning]], [[#Property_Drawers][property drawers]],
+   [[#Sections][sections]], and [[#Table_Rows][table rows]], every other
+   element type can be assigned attributes.
+
+   This is done by adding specific [[#Keywords][keywords]], named
+   /affiliated/ keywords, immediately above the element considered (a
+   blank line cannot lie between the affiliated keyword and element).
+   Structurally, affiliated keyword are not considered an element in
+   their own right but a property of the element they apply to.
+
+   Affiliated keywords are structured according to one of the following
+   pattern:
+
+   #+name: orgf24db8b
+   #+begin_example
+   ,#+KEY: VALUE
+   ,#+KEY[OPTVAL]: VALUE
+   ,#+attr_BACKEND: VALUE
+   #+end_example
+
+   - KEY :: A string which is a member of
+     =org-element-affiliated-keywords=^{[[#fn.oeakw][8]]}.
+   - BACKEND :: A string consisting of alphanumeric characters, hyphens,
+     or underscores (=-_=).
+   - OPTVAL (optional) :: A string consisting of any characters but a
+     newline. Opening and closing square brackets must be balanced. This
+     term is only valid when KEY is a member of
+     =org-element-dual-keywords=^{[[#fn.oedkw][9]]}.
+   - VALUE :: A string consisting of any characters but a newline,
+     except in the case where KEY is member of
+     =org-element-parsed-keywords=^{[[#fn.oepkw][6]]} in which case
+     VALUE is a series of objects from the [[#orge565377][standard
+     set]], excluding footnote references.
+
+   Repeating an affiliated keyword before an element will usually result
+   in the prior VALUEs being overwritten by the last instance of KEY.
+   The sole exception to this is =#+header:= keywords, where in the case
+   of multiple =:opt val= declarations the last declaration on the first
+   line it occurs on has priority.
+
+   There are two situations under which the VALUEs will be concatenated:
+
+   1. If KEY is a member of
+      =org-element-dual-keywords=^{[[#fn.oedkw][9]]}.
+   2. If the affiliated keyword is an instance of the pattern
+      =#+attr_BACKEND: VALUE=.
+
+   When no element immediately follows an instance of the “affiliated
+   keyword” pattern, the keyword is a normal, non-affiliated keyword.
+
+   The following example contains three affiliated keywords:
+
+   #+name: orge254fbd
+   #+begin_example
+   ,#+name: image-name
+   ,#+caption: This is a caption for
+   ,#+caption: the image linked below
+   [[file:some/image.png]]
+   #+end_example
+
+<<outline-container-LaTeX_Environments>>
+**** 4.3.9. LaTeX Environments
+:PROPERTIES:
+:CUSTOM_ID: LaTeX_Environments
+:END:
+
+<<text-LaTeX_Environments>>
+LaTeX environments are structured according to the following pattern:
+
+#+name: orged6e0d6
+#+begin_example
+\begin{NAME}EXTRA
+CONTENTS
+\end{NAME}
+#+end_example
+
+- NAME :: A non-empty string consisting of alphanumeric or asterisk
+  characters
+- EXTRA (optional) :: A string which does not contain the substring
+  =\end{NAME}=.
+- CONTENTS (optional) :: A string which does not contain the substring
+  =\end{NAME}=.
+
+*Examples*
+
+#+name: org5d6c1d0
+#+begin_example
+\begin{align*}
+2x - 5y &= 8 \\
+3x + 9y &= -12
+\end{align*}
+#+end_example
+
+<<outline-container-Node_Properties>>
+**** 4.3.10. Node Properties
+:PROPERTIES:
+:CUSTOM_ID: Node_Properties
+:END:
+
+<<text-Node_Properties>>
+Node properties can only exist in [[#Property_Drawers][property
+drawers]], and are structured according to one of the following
+patterns:
+
+#+name: orgd1777a2
+#+begin_example
+:NAME: VALUE
+:NAME:
+:NAME+: VALUE
+:NAME+:
+#+end_example
+
+- NAME :: A non-empty string containing any non-whitespace characters
+  which does not end in a plus characters (=+=).
+- VALUE (optional) :: A string containing any characters but a newline.
+
+<<outline-container-Paragraphs>>
+**** 4.3.11. Paragraphs
+:PROPERTIES:
+:CUSTOM_ID: Paragraphs
+:END:
+
+<<text-Paragraphs>>
+Paragraphs are the default element, which means that any unrecognized
+context is a paragraph.
+
+Empty lines and other elements end paragraphs.
+
+Paragraphs can contain the [[#orge565377][standard set]] of objects.
+
+<<outline-container-Table_Rows>>
+**** 4.3.12. Table Rows
+:PROPERTIES:
+:CUSTOM_ID: Table_Rows
+:END:
+
+<<text-Table_Rows>>
+A table row consists of a vertical bar (=|=) followed by:
+
+- Any number of [[#Table_Cells][table cells]], forming a “standard” type
+  row.
+- A hyphen (=-=), forming a “rule” type row. Any non-newline characters
+  can follow the hyphen and this will still be a “rule” type row
+
+Table rows can only exist in [[#Tables][tables]] with Org type.
+
+<<outline-container-Objects>>
+** 5. Objects
+:PROPERTIES:
+:CUSTOM_ID: Objects
+:END:
+
+<<text-Objects>>
+Objects can only be found in the following elements:
+
+- [[#Keywords][keywords]] or [[#Affiliated_Keywords][affiliated
+  keywords]] VALUEs, when KEY is a member of
+  =org-element-parsed-keywords=^{[[#fn.oepkw][6]]},
+- [[#Headings][heading]] TITLEs,
+- [[#Inlinetasks][inlinetask]] TITLEs,
+- [[#Items][item]] TAGs,
+- [[#Clocks][clock]] INACTIVE-TIMESTAMP and INACTIVE-TIMESTAMP-RANGE,
+  which can only contain inactive timestamps,
+- [[#Planning][planning]] TIMESTAMPs, which can only be timestamps,
+- [[#Paragraphs][paragraphs]],
+- [[#Table_Cells][table cells]],
+- [[#Table_Rows][table rows]], which can only contain table cell
+  objects,
+- [[#Blocks][verse blocks]].
+
+Org syntax objects have a similar structure to [[#Elements][elements]],
+except blank lines being replaced by trailing spaces:
+
+#+name: org990861b
+#+begin_example
+BEGIN CONTENTS END BLANK
+BEGIN VALUE END BLANK
+#+end_example
+
+Most objects cannot contain objects. Those which can will be specified.
+Furthermore, while many objects may contain newlines, a blank line often
+terminates the element that the object is a part of, such as a
+paragraph.
+
+Trailing spaces at the end of objects are considered a part of those
+objects.
+
+#+name: org0e2c9f0
+#+begin_example
+This *bold markup*      also includes the subsequent trailing spaces into
+the bold object.
+
+,*This is not a bold markup
+
+because the previous blank line separates the containing paragraph*.
+#+end_example
+
+<<outline-container-Entities>>
+*** 5.1. Entities
+:PROPERTIES:
+:CUSTOM_ID: Entities
+:END:
+
+<<text-Entities>>
+Entities are structured according to the following patterns:
+
+#+name: org7a5579c
+#+begin_example
+\NAME POST
+\NAME{}
+\_SPACES
+#+end_example
+
+Where NAME and POST are not separated by a whitespace character.
+
+- NAME :: A string with a valid association in either
+  =org-entities=^{[[#fn.oe][10]]} or =org-entities-user=.
+- [[#Special_Tokens][POST]] :: Either:
+  - The end of line.
+  - A non-alphabetic character.
+- SPACES :: One or more spaces, constituting a whitespace entity with
+  name =_SPACES= from =org-entities= or =org-entities-user=.
+
+*Example*
+
+#+name: orgc54cffd
+#+begin_example
+1\cent.
+1.5em space:\_   here, all three spaces in =\_   = constitute the entity name.
+#+end_example
+
+<<outline-container-LaTeX_Fragments>>
+*** 5.2. LaTeX Fragments
+:PROPERTIES:
+:CUSTOM_ID: LaTeX_Fragments
+:END:
+
+<<text-LaTeX_Fragments>>
+LaTeX fragments are structured according to one of the following
+patterns:
+
+#+name: org70630ee
+#+begin_example
+\NAME BRACKETS
+\(CONTENTS\)
+\[CONTENTS\]
+#+end_example
+
+- NAME :: A string consisting of alphabetic characters which does not
+  have an association in either =org-entities= or =org-entities-user=.
+- BRACKETS (optional) :: An instance of one of the following patterns,
+  not separated from NAME by whitespace.
+
+  #+name: orgcc4a90c
+  #+begin_example
+  [CONTENTS1]
+  {CONTENTS1}
+  #+end_example
+
+  - CONTENTS1 :: A string consisting of any characters but ={=, =}=,
+    =[=, =]=, or a newline.
+  - CONTENTS2 :: A string consisting of any characters but ={=, =}=, or
+    a newline.
+
+- CONTENTS :: A string consisting of any characters, so long as it does
+  not contain the substring =\)= in the case of the second template, or
+  =\]= in the case of the third template.
+
+*Examples*
+
+#+name: org3453fec
+#+begin_example
+\enlargethispage{2\baselineskip}
+\(e^{i \pi}\)
+#+end_example
+
+Org also supports TeX-style inline LaTeX fragments, structured according
+the following pattern:
+
+#+name: org9b6b7b1
+#+begin_example
+$$CONTENTS$$
+PRE$CHAR$POST
+PRE$BORDER1 BODY BORDER2$POST
+#+end_example
+
+- [[#Special_Tokens][PRE]] :: Either the beginning of line or a
+  character other than =$=.
+- CHAR :: A non-whitespace character that is not =.=, =,=, =?=, =;=, or
+  a double quote (="=).
+- [[#Special_Tokens][POST]] :: Any punctuation character (including
+  parentheses and quotes), a space character, or the end of line.
+- BORDER1 :: A non-whitespace character that is not =.=, =,=, =;=, or
+  =$=.
+- BODY :: A string consisting of any characters except =$=.
+- BORDER2 :: A non-whitespace character that is not =.=, =,=, or =$=.
+
+*Example*
+
+#+name: org27af377
+#+begin_example
+$$1+1=2$$
+#+end_example
+
+<<outline-container-Export_Snippets>>
+*** 5.3. Export Snippets
+:PROPERTIES:
+:CUSTOM_ID: Export_Snippets
+:END:
+
+<<text-Export_Snippets>>
+Export snippets are structured according to the following pattern:
+
+#+name: orgf377f6f
+#+begin_example
+@@BACKEND:VALUE@@
+#+end_example
+
+- BACKEND :: A string consisting of one or more alphanumeric characters
+  and hyphens.
+- VALUE (optional) :: A string containing anything but the string =@@=.
+
+<<outline-container-Footnote_References>>
+*** 5.4. Footnote References
+:PROPERTIES:
+:CUSTOM_ID: Footnote_References
+:END:
+
+<<text-Footnote_References>>
+Footnote references are structured according to one of the following
+patterns:
+
+#+name: org4e34f0f
+#+begin_example
+[fn:LABEL]
+[fn:LABEL:DEFINITION]
+[fn::DEFINITION]
+#+end_example
+
+- LABEL :: A string containing one or more word constituent characters,
+  hyphens and underscores (=-_=).
+- DEFINITION (optional) :: One or more objects from the
+  [[#orge565377][standard set]], so long as opening and closing square
+  brackets are balanced within DEFINITION.
+
+If the reference follows the second pattern, it is called an “inline
+footnote”. If it follows the third pattern, i.e. if LABEL is omitted, it
+is called an “anonymous footnote”.
+
+Note that the first pattern may not occur on an /unindented/ line, as it
+is then a [[#Footnote_Definitions][footnote definition]].
+
+<<outline-container-Citations>>
+*** 5.5. Citations
+:PROPERTIES:
+:CUSTOM_ID: Citations
+:END:
+
+<<text-Citations>>
+Citations are structured according to the following pattern:
+
+#+name: orga0b866e
+#+begin_example
+[cite CITESTYLE: REFERENCES]
+[cite CITESTYLE: GLOBALPREFIX;REFERENCES]
+[cite CITESTYLE: REFERENCES;GLOBALSUFFIX]
+[cite CITESTYLE: GLOBALPREFIX;REFERENCES;GLOBALSUFFIX]
+#+end_example
+
+Where “cite” and =CITESTYLE= are /not/ separated by whitespace.
+Whitespace after the leading colon or before the closing square bracket
+is not significant.
+
+- CITESTYLE (optional) :: An instance of either the pattern =/STYLE= or
+  =/STYLE/VARIANT=
+  - STYLE :: A string made of any alphanumeric character, =_=, or =-=.
+  - VARIANT :: A string made of any alphanumeric character, =_=, =-=, or
+    =/=.
+- GLOBALPREFIX (optional) :: One or more objects from the
+  [[#orge565377][standard set]], so long as all square brackets are
+  balanced within GLOBALPREFIX, and it does not contain any semicolons
+  (=;=) or subsequence that matches =@KEY=.
+- REFERENCES :: One or more [[#Citation_References][citation reference]]
+  objects, separated by semicolons (=;=).
+- GLOBALSUFFIX (optional) :: One or more objects from the
+  [[#orge565377][standard set]], so long as all square brackets are
+  balanced within GLOBALSUFFIX, and it does not contain any semicolons
+  (=;=) or subsequence that matches =@KEY=.
+
+*Examples*
+
+#+name: org0ea2a27
+#+begin_example
+[cite:@key]
+[cite/t: see;@source1;@source2;by Smith /et al./]
+#+end_example
+
+<<outline-container-Citation_References>>
+*** 5.6. Citation references
+:PROPERTIES:
+:CUSTOM_ID: Citation_References
+:END:
+
+<<text-Citation_References>>
+A reference to an individual resource is given in a /citation reference/
+object. Citation references are only found within
+[[#Citations][citations]], and are structured according to the following
+pattern:
+
+#+name: org3ce91a2
+#+begin_example
+KEYPREFIX @KEY KEYSUFFIX
+#+end_example
+
+Where KEYPREFIX, @​KEY, and KEYSUFFIX are not separated by whitespace
+(all the whitespace is significant).
+
+- KEYPREFIX (optional) :: One or more objects from the
+  [[#orgab5b62c][minimal set]], so long as all square brackets are
+  balanced within KEYPREFIX, and it does not contain any semicolons
+  (=;=) or subsequence that matches =@KEY=.
+- KEY :: A string made of any word-constituent character, =-=, =.=, =:=,
+  =?=, =!=, =`=, ='=, =/=, =*=, =@=, =+=, =|=, =(=, =)=, ={=, =}=, =<=,
+  =>=, =&=, =_=, =^=, =$=, =#=, =%=, or =~=.
+- KEYSUFFIX (optional) :: One or more objects from the
+  [[#orgab5b62c][minimal set]], so long as all square brackets are
+  balanced within KEYPREFIX, and it does not contain any semicolons
+  (=;=).
+
+*Examples*
+
+#+name: org470e2d9
+#+begin_example
+[cite:@key]
+[cite/t:see;@foo p. 7;@bar pp. 4;by foo]
+[cite/a/f:c.f.;the very important @@atkey @ once;the crucial @baz vol. 3]
+#+end_example
+
+<<outline-container-Inline_Babel_Calls>>
+*** 5.7. Inline Babel Calls
+:PROPERTIES:
+:CUSTOM_ID: Inline_Babel_Calls
+:END:
+
+<<text-Inline_Babel_Calls>>
+Inline Babel calls are structured according to one of the following
+patterns:
+
+#+name: orge655204
+#+begin_example
+call_NAME(ARGUMENTS)
+call_NAME[HEADER1](ARGUMENTS)
+call_NAME(ARGUMENTS)[HEADER2]
+call_NAME[HEADER1](ARGUMENTS)[HEADER2]
+#+end_example
+
+- NAME :: A string consisting of any non-whitespace characters except
+  for square brackets or parentheses (=[](​)=).
+- ARGUMENTS, HEADER1 (optional), HEADER2 (optional) :: A string
+  consisting of zero or more non-newline characters. Opening and closing
+  square brackets must be balanced within HEADER1 and HEADER2, and
+  opening and closing parenthesis - within ARGUMENTS.
+
+<<outline-container-Source_Blocks>>
+*** 5.8. Inline Source Blocks
+:PROPERTIES:
+:CUSTOM_ID: Source_Blocks
+:END:
+
+<<text-Source_Blocks>>
+Inline source blocks follow any of the following patterns:
+
+#+name: org9452086
+#+begin_example
+src_LANG{BODY}
+src_LANG[HEADERS]{BODY}
+#+end_example
+
+- LANG :: A string consisting of any characters other than whitespace,
+  the opening square bracket (=[=), or opening curly bracket (={=).
+- HEADERS (optional), BODY :: A string consisting of zero or more
+  non-newline characters. Opening and closing square brackets must be
+  balanced within HEADERS, and opening and closing curly brackets within
+  BODY.
+
+<<outline-container-Line_Breaks>>
+*** 5.9. Line Breaks
+:PROPERTIES:
+:CUSTOM_ID: Line_Breaks
+:END:
+
+<<text-Line_Breaks>>
+Line breaks must occur at the end of an otherwise non-blank line, and
+are structured according to the following pattern:
+
+#+name: org98dc70a
+#+begin_example
+PRE\\SPACE
+#+end_example
+
+- [[#Special_Tokens][PRE]] :: Anything but backslash (=\=).
+- SPACE :: Zero or more tab and space characters.
+
+<<outline-container-Links>>
+*** 5.10. Links
+:PROPERTIES:
+:CUSTOM_ID: Links
+:END:
+
+<<text-Links>>
+While links are a single object, they come in four subtypes: “radio”,
+“angle”, “plain”, and “regular” links.
+
+<<outline-container-org5d0e2e1>>
+**** 5.10.1. Radio Links
+:PROPERTIES:
+:CUSTOM_ID: org5d0e2e1
+:END:
+
+<<text-5-10-1>>
+Radio-type links are structured according to the following pattern:
+
+#+name: org0a7dce9
+#+begin_example
+PRE RADIO POST
+#+end_example
+
+- [[#Special_Tokens][PRE]] :: A non-alphanumeric character.
+- RADIO :: One or more objects matched by some
+  [[#Targets_and_Radio_Targets][radio target]]. It can contain the
+  [[#orgab5b62c][minimal set]] of objects.
+- [[#Special_Tokens][POST]] :: A non-alphanumeric character.
+
+*Example*
+
+#+name: org355f3fc
+#+begin_example
+This is some <<<*important* information>>> which we refer to lots.
+Make sure you remember the *important* information.
+#+end_example
+
+The first instance of =*important* information= defines a radio target,
+which is matched by the second instance of =*important* information=,
+forming a radio link.
+
+<<outline-container-org394b83a>>
+**** 5.10.2. Plain links
+:PROPERTIES:
+:CUSTOM_ID: org394b83a
+:END:
+
+<<text-5-10-2>>
+Plain-type links are structured according to the following pattern:
+
+#+name: org2dad6bd
+#+begin_example
+PRE LINKTYPE:PATHPLAIN POST
+#+end_example
+
+- [[#Special_Tokens][PRE]] :: A non word constituent character.
+- LINKTYPE :: A string which is one of the link type strings in
+  =org-link-parameters=^{[[#fn.olp][11]]}.
+- PATHPLAIN :: A string containing non-whitespace non-bracket (=()[]<>=)
+  characters, optionally containing parenthesis-wrapped non-whitespace
+  non-bracket substrings up to a depth of two. The string must end with
+  either a non-punctation non-whitespace character, a forwards slash, or
+  a parenthesis-wrapped substring.^{[[#fn.12][12]]}
+- [[#Special_Tokens][POST]] :: A non word constituent character.
+
+*Example*
+
+#+name: org4aff71f
+#+begin_example
+Be sure to look at https://orgmode.org.
+#+end_example
+
+<<outline-container-orge6ff86e>>
+**** 5.10.3. Angle links
+:PROPERTIES:
+:CUSTOM_ID: orge6ff86e
+:END:
+
+<<text-5-10-3>>
+Angle-type essentially provide a method to disambiguate plain links from
+surrounding text, and are structured according to the following pattern:
+
+#+name: orgac597b3
+#+begin_example
+<LINKTYPE:PATHANGLE>
+#+end_example
+
+- LINKTYPE :: A string which is one of the link type strings in
+  =org-link-parameters=^{[[#fn.olp][11]]}
+- PATHANGLE :: A string containing any character but =>=., where
+  newlines and indentation are ignored.
+
+The angle brackets allow for a more permissive PATH syntax, without
+accidentally matching surrounding text.
+
+<<outline-container-org2c3a5c5>>
+**** 5.10.4. Regular links
+:PROPERTIES:
+:CUSTOM_ID: org2c3a5c5
+:END:
+
+<<text-5-10-4>>
+Plain-type links are structured according to one of the following two
+patterns:
+
+#+name: orgac710b0
+#+begin_example
+[[PATHREG]]
+[[PATHREG][DESCRIPTION]]
+#+end_example
+
+- PATHREG :: An instance of one of the seven following annotated
+  patterns:
+
+  #+name: orgcb444eb
+  #+begin_example
+  FILENAME               ("file" type)
+  LINKTYPE:PATHINNER     ("LINKTYPE" type)
+  LINKTYPE://PATHINNER   ("LINKTYPE" type)
+  id:ID                  ("id" type)
+  #CUSTOM-ID             ("custom-id" type)
+  (CODEREF)              ("coderef" type)
+  FUZZY                  ("fuzzy" type)
+  #+end_example
+
+  Any sequence of spaces, tabs, and newlines inside PATHREG is treated
+  as a single space.^{[[#fn.13][13]]}
+
+  - FILENAME :: A string representing an absolute or relative file path.
+  - LINKTYPE :: A string which is one of the link type strings in
+    =org-link-parameters=^{[[#fn.olp][11]]}
+  - PATHINNER :: A string consisting of any character besides square
+    brackets.
+  - ID :: A string consisting of any character besides square brackets.
+  - CUSTOM-ID :: A string consisting of any character besides square
+    brackets.
+  - CODEREF :: A string consisting of any character besides square
+    brackets.
+  - FUZZY :: A string consisting of any character besides square
+    brackets.
+
+  Square brackets and backslashes can be present in PATHREG so long as
+  they are escaped by a backslash (i.e. =\]=, =\\=).
+
+- DESCRIPTION (optional) :: One or more objects enclosed by square
+  brackets. It can contain the [[#orgab5b62c][minimal set]] of objects
+  as well as [[#Export_Snippets][export snippets]],
+  [[#Inline_Babel_Calls][inline babel calls]], [[#Source_Blocks][inline
+  source blocks]], [[#Macros][macros]], and
+  [[#Statistics_Cookies][statistics cookies]]. It can also contain
+  another link, but only when it is a plain or angle link. It can
+  contain square brackets, but not =]]=.
+
+*Examples*
+
+#+name: orgbae26d5
+#+begin_example
+[[https://orgmode.org][The Org project homepage]]
+[[file:orgmanual.org]]
+[[Regular links]]
+#+end_example
+
+<<outline-container-Macros>>
+*** 5.11. Macros
+:PROPERTIES:
+:CUSTOM_ID: Macros
+:END:
+
+<<text-Macros>>
+Macros are structured according to one of the following patterns:
+
+#+name: orgc096c02
+#+begin_example
+{{{NAME}}}
+{{{NAME(ARGUMENTS)}}}
+#+end_example
+
+- NAME :: A string starting with a alphabetic character followed by any
+  number of alphanumeric characters, hyphens and underscores (=-_=).
+- ARGUMENTS (optional) :: A string consisting of any characters, so long
+  as it does not contain the substring =}}}=. Values within ARGUMENTS
+  are separated by commas. Non-separating commas have to be escaped with
+  a backslash character.
+
+*Examples*
+
+#+name: orgfb2fd4a
+#+begin_example
+{{{title}}}
+{{{one_arg_macro(1)}}}
+{{{two_arg_macro(1, 2)}}}
+{{{two_arg_macro(1\,a, 2)}}}
+#+end_example
+
+<<outline-container-Targets_and_Radio_Targets>>
+*** 5.12. Targets and Radio Targets
+:PROPERTIES:
+:CUSTOM_ID: Targets_and_Radio_Targets
+:END:
+
+<<text-Targets_and_Radio_Targets>>
+Targets are structured according to the following pattern:
+
+#+name: org6eb10fd
+#+begin_example
+<<TARGET>>
+#+end_example
+
+- TARGET :: A string containing any character but =<=, =>=, or =\n=. It
+  cannot start or end with a whitespace character.
+
+Radio targets are structured according to the following pattern:
+
+#+name: org47e6192
+#+begin_example
+<<<CONTENTS>>>
+#+end_example
+
+- CONTENTS :: One or more objects from the [[#orgab5b62c][minimal set]],
+  starting and ending with a non-whitespace character, and containing
+  any character but =<=, =>=, or =\n=.
+
+<<outline-container-Statistics_Cookies>>
+*** 5.13. Statistics Cookies
+:PROPERTIES:
+:CUSTOM_ID: Statistics_Cookies
+:END:
+
+<<text-Statistics_Cookies>>
+Statistics cookies are structured according to one of the following
+patterns:
+
+#+name: org1b359db
+#+begin_example
+[PERCENT%]
+[NUM1/NUM2]
+#+end_example
+
+- PERCENT (optional) :: A non-negative integer.
+- NUM1 (optional) :: A non-negative integer.
+- NUM2 (optional) :: A non-negative integer.
+
+<<outline-container-Subscript_and_Superscript>>
+*** 5.14. Subscript and Superscript
+:PROPERTIES:
+:CUSTOM_ID: Subscript_and_Superscript
+:END:
+
+<<text-Subscript_and_Superscript>>
+Subscripts are structured according to the following pattern:
+
+#+name: org772c9e8
+#+begin_example
+CHAR_SCRIPT
+#+end_example
+
+Superscripts are structured according to the following pattern:
+
+#+name: orge383f1b
+#+begin_example
+CHAR^SCRIPT
+#+end_example
+
+- CHAR :: Any non-whitespace character.
+- SCRIPT :: One of the following constructs:
+  - A single asterisk character (=*=).
+
+  - An expression enclosed in curly brackets (={=, =}=) or in round
+    braces (=(=, =)=), which may itself contain balanced curly or round
+    brackets and the [[#orge565377][standard set]] of objects.
+
+  - An instance of the pattern:
+
+    #+name: org69bf3c9
+    #+begin_example
+    SIGN CHARS FINAL
+    #+end_example
+
+    With no whitespace between SIGN, CHARS and FINAL.
+
+    - SIGN (optional) :: Either a plus sign character (=+=), a minus
+      sign character (=-=), or the empty string.
+    - CHARS :: Either the empty string, or a string consisting of any
+      number of alphanumeric characters, commas, backslashes, and dots.
+    - FINAL :: An alphanumeric character.
+
+Examples:
+
+#+name: org372805c
+#+begin_example
+pecularity^*
+x^2
+x^-2
+y_(i^th, i is odd)
+x^{y^{z}}
+A_i,j
+#+end_example
+
+In rare occasions, subscript syntax clashes with
+[[#Emphasis_Markers][underline markup]]:
+
+#+name: orgd1225e8
+#+begin_example
+(_text_)
+#+end_example
+
+[[#Emphasis_Markers][Underline markup]] takes priority in such case, to
+keep consistency with other types of markup:
+
+#+name: orgd54eb90
+#+begin_example
+(_text_)
+(*text*)
+(/text/)
+...
+#+end_example
+
+<<outline-container-Table_Cells>>
+*** 5.15. Table Cells
+:PROPERTIES:
+:CUSTOM_ID: Table_Cells
+:END:
+
+<<text-Table_Cells>>
+Table cells are structured according to the following patterns:
+
+#+name: orgbf9dfa9
+#+begin_example
+CONTENTS SPACES|
+CONTENTS SPACES END-OF-LINE
+#+end_example
+
+- CONTENTS :: Zero or more objects not containing the vertical bar
+  character (=|=). It can contain the [[#orgab5b62c][minimal set]] of
+  objects, [[#Citations][citations]], [[#Export_Snippets][export
+  snippets]], [[#Footnote_References][footnote references]],
+  [[#Links][links]], [[#Macros][macros]],
+  [[#Targets_and_Radio_Targets][radio targets]],
+  [[#Targets_and_Radio_Targets][targets]], and
+  [[#Timestamps][timestamps]].
+- SPACES :: A string consisting of zero or more of space characters,
+  used to align the table columns.
+- END-OF-LINE :: Line ending.
+
+The final vertical bar (=|=) may be omitted in the last cell of a
+[[#Table_Rows][table row]].
+
+<<outline-container-Timestamps>>
+*** 5.16. Timestamps
+:PROPERTIES:
+:CUSTOM_ID: Timestamps
+:END:
+
+<<text-Timestamps>>
+Timestamps are structured according to one of the seven following
+patterns:
+
+#+name: orgd51396a
+#+begin_example
+<%%(SEXP)>                                                     (diary)
+<%%(SEXP) TIME>                                                (diary)
+<%%(SEXP) TIME-TIME>                                           (diary)
+<DATE TIME REPEATER-OR-DELAY>                                  (active)
+[DATE TIME REPEATER-OR-DELAY]                                  (inactive)
+<DATE TIME REPEATER-OR-DELAY>--<DATE TIME REPEATER-OR-DELAY>   (active range)
+<DATE TIME-TIME REPEATER-OR-DELAY>                             (active range)
+[DATE TIME REPEATER-OR-DELAY]--[DATE TIME REPEATER-OR-DELAY]   (inactive range)
+[DATE TIME-TIME REPEATER-OR-DELAY]                             (inactive range)
+#+end_example
+
+- SEXP :: A string consisting of any characters but =>= and =\n=.
+- DATE :: An instance of the pattern:
+
+  #+name: orgb33a355
+  #+begin_example
+  YYYY-MM-DD DAYNAME
+  #+end_example
+
+  - Y, M, D :: A digit.
+  - DAYNAME (optional) :: A string consisting of non-whitespace
+    characters except =+=, =-=, =]=, =>=, a digit, or =\n=.
+
+- TIME (optional) :: An instance of the pattern =H:MM= where =H=
+  represents a one to two digit number (and can start with =0=), and =M=
+  represents a single digit.
+- REPEATER-OR-DELAY (optional) :: An instance of a single =REPEATER=
+  and/or an instance of a single =DELAY= in any order.
+- REPEATER (optional) :: An instance of the following pattern:
+
+  #+name: orgdbfeb9d
+  #+begin_example
+  MARK VALUE UNIT
+  MARK VALUE UNIT/VALUE UNIT
+  #+end_example
+
+  Where MARK, VALUE and UNIT are not separated by whitespace characters.
+
+  - MARK :: Either the string =+= (cumulative type), =++= (catch-up
+    type), or =.+= (restart type).
+  - VALUE :: A number.
+  - UNIT :: Either the character =h= (hour), =d= (day), =w= (week), =m=
+    (month), or =y= (year).
+
+- DELAY (optional) :: An instance of the following pattern:
+
+  #+name: orgfc70d98
+  #+begin_example
+  MARK VALUE UNIT
+  #+end_example
+
+  Where MARK, VALUE and UNIT are not separated by whitespace characters.
+
+  - MARK :: Either =-= (all type) or =--= (first type).
+  - VALUE :: A number.
+  - UNIT :: Either the character =h= (hour), =d= (day), =w= (week), =m=
+    (month), or =y= (year).
+
+*Examples*
+
+#+name: orgc17a8d7
+#+begin_example
+<1997-11-03 Mon 19:15>
+<%%(diary-float t 4 2)>
+<%%(diary-float t 4 2) 12:00-14:00>
+[2004-08-24 Tue]--[2004-08-26 Thu]
+<2012-02-08 Wed 20:00 ++1d>
+<2030-10-05 Sat +1m -3d>
+<2012-03-29 Thu ++1y/2y>
+#+end_example
+
+<<outline-container-Emphasis_Markers>>
+*** 5.17. Text Markup
+:PROPERTIES:
+:CUSTOM_ID: Emphasis_Markers
+:END:
+
+<<text-Emphasis_Markers>>
+There are six text markup objects, which are all structured according to
+the following pattern:
+
+#+name: orga3d323b
+#+begin_example
+PRE MARKER CONTENTS MARKER POST
+#+end_example
+
+Where PRE, MARKER, CONTENTS, MARKER and POST are not separated by
+whitespace characters.
+
+- [[#Special_Tokens][PRE]] :: Either a whitespace character, =-=, =(=,
+  ={=, ='=, ="=, or the beginning of a line.
+- MARKER :: A character that determines the object type, as follows:
+  - =*=, a /bold/ object,
+  - =/=, an /italic/ object,
+  - =_= an /underline/ object,
+  - ===, a /verbatim/ object,
+  - =~=, a /code/ object
+  - =+=, a /strike-through/ object.
+- CONTENTS :: Either a string (when MARKER represents code or verbatim)
+  or a series of objects from the [[#orge565377][standard set]]. In both
+  cases, CONTENTS may not begin or end with whitespace.
+- [[#Special_Tokens][POST]] :: Either a whitespace character, =-=, =.=,
+  =,=, =;=, =:=, =!=, =?=, ='=, =)=, =}=, =[=, ="=, =\= (backslash), or
+  the end of a line.
+
+*Examples*
+
+#+name: org2740e33
+#+begin_example
+Org is a /plaintext markup syntax/ developed with *Emacs* in 2003.
+The canonical parser is =org-element.el=, which provides a number of
+functions starting with ~org-element-~.
+#+end_example
+
+<<outline-container-Plain_Text>>
+**** 5.17.1. Plain Text
+:PROPERTIES:
+:CUSTOM_ID: Plain_Text
+:END:
+
+<<text-Plain_Text>>
+Any string that doesn't match any other object can be considered a plain
+text object.^{[[#fn.14][14]]} Within a plain text object, all whitespace
+is collapsed to a single space. For instance, =hello\n there= is
+equivalent to =hello there=.
+
+<<outline-container-org906a7e3>>
+** 6. Appendix
+:PROPERTIES:
+:CUSTOM_ID: org906a7e3
+:END:
+
+<<text-6>>
+
+<<outline-container-Entities_List>>
+*** 6.1. Org Entities
+:PROPERTIES:
+:CUSTOM_ID: Entities_List
+:END:
+
+<<text-Entities_List>>
+| Name                        | Character              |
+|-----------------------------+------------------------|
+| /Letters/                   |                        |
+| LATIN                       |                        |
+| =Agrave=                    | À                      |
+| =agrave=                    | à                      |
+| =Aacute=                    | Á                      |
+| =aacute=                    | á                      |
+| =Acirc=                     | Â                      |
+| =acirc=                     | â                      |
+| =Amacr=                     | Ā                      |
+| =amacr=                     | ā                      |
+| =Atilde=                    | Ã                      |
+| =atilde=                    | ã                      |
+| =Auml=                      | Ä                      |
+| =auml=                      | ä                      |
+| =Aring=                     | Å                      |
+| =AA=                        | Å                      |
+| =aring=                     | å                      |
+| =AElig=                     | Æ                      |
+| =aelig=                     | æ                      |
+| =Ccedil=                    | Ç                      |
+| =ccedil=                    | ç                      |
+| =Egrave=                    | È                      |
+| =egrave=                    | è                      |
+| =Eacute=                    | É                      |
+| =eacute=                    | é                      |
+| =Ecirc=                     | Ê                      |
+| =ecirc=                     | ê                      |
+| =Euml=                      | Ë                      |
+| =euml=                      | ë                      |
+| =Igrave=                    | Ì                      |
+| =igrave=                    | ì                      |
+| =Iacute=                    | Í                      |
+| =iacute=                    | í                      |
+| =Idot=                      | &idot;                 |
+| =inodot=                    | ı                      |
+| =Icirc=                     | Î                      |
+| =icirc=                     | î                      |
+| =Iuml=                      | Ï                      |
+| =iuml=                      | ï                      |
+| =Ntilde=                    | Ñ                      |
+| =ntilde=                    | ñ                      |
+| =Ograve=                    | Ò                      |
+| =ograve=                    | ò                      |
+| =Oacute=                    | Ó                      |
+| =oacute=                    | ó                      |
+| =Ocirc=                     | Ô                      |
+| =ocirc=                     | ô                      |
+| =Otilde=                    | Õ                      |
+| =otilde=                    | õ                      |
+| =Ouml=                      | Ö                      |
+| =ouml=                      | ö                      |
+| =Oslash=                    | Ø                      |
+| =oslash=                    | ø                      |
+| =OElig=                     | Œ                      |
+| =oelig=                     | œ                      |
+| =Scaron=                    | Š                      |
+| =scaron=                    | š                      |
+| =szlig=                     | ß                      |
+| =Ugrave=                    | Ù                      |
+| =ugrave=                    | ù                      |
+| =Uacute=                    | Ú                      |
+| =uacute=                    | ú                      |
+| =Ucirc=                     | Û                      |
+| =ucirc=                     | û                      |
+| =Uuml=                      | Ü                      |
+| =uuml=                      | ü                      |
+| =Yacute=                    | Ý                      |
+| =yacute=                    | ý                      |
+| =Yuml=                      | Ÿ                      |
+| =yuml=                      | ÿ                      |
+| LATIN (SPECIAL FACE)        |                        |
+| =fnof=                      | ƒ                      |
+| =real=                      | ℜ                      |
+| =image=                     | ℑ                      |
+| =weierp=                    | ℘                      |
+| =ell=                       | ℓ                      |
+| =imath=                     | ı                      |
+| =jmath=                     | ȷ                      |
+| GREEK                       |                        |
+| =Alpha=                     | Α                      |
+| =alpha=                     | α                      |
+| =Beta=                      | Β                      |
+| =beta=                      | β                      |
+| =Gamma=                     | Γ                      |
+| =gamma=                     | γ                      |
+| =Delta=                     | Δ                      |
+| =delta=                     | δ                      |
+| =Epsilon=                   | Ε                      |
+| =epsilon=                   | ε                      |
+| =varepsilon=                | ε                      |
+| =Zeta=                      | Ζ                      |
+| =zeta=                      | ζ                      |
+| =Eta=                       | Η                      |
+| =eta=                       | η                      |
+| =Theta=                     | Θ                      |
+| =theta=                     | θ                      |
+| =thetasym=                  | ϑ                      |
+| =vartheta=                  | ϑ                      |
+| =Iota=                      | Ι                      |
+| =iota=                      | ι                      |
+| =Kappa=                     | Κ                      |
+| =kappa=                     | κ                      |
+| =Lambda=                    | Λ                      |
+| =lambda=                    | λ                      |
+| =Mu=                        | Μ                      |
+| =mu=                        | μ                      |
+| =nu=                        | ν                      |
+| =Nu=                        | Ν                      |
+| =Xi=                        | Ξ                      |
+| =xi=                        | ξ                      |
+| =Omicron=                   | Ο                      |
+| =omicron=                   | ο                      |
+| =Pi=                        | Π                      |
+| =pi=                        | π                      |
+| =Rho=                       | Ρ                      |
+| =rho=                       | ρ                      |
+| =Sigma=                     | Σ                      |
+| =sigma=                     | σ                      |
+| =sigmaf=                    | ς                      |
+| =varsigma=                  | ς                      |
+| =Tau=                       | Τ                      |
+| =Upsilon=                   | Υ                      |
+| =upsih=                     | ϒ                      |
+| =upsilon=                   | υ                      |
+| =Phi=                       | Φ                      |
+| =phi=                       | φ                      |
+| =varphi=                    | ϕ                      |
+| =Chi=                       | Χ                      |
+| =chi=                       | χ                      |
+| =acutex=                    | ´x                     |
+| =Psi=                       | Ψ                      |
+| =psi=                       | ψ                      |
+| =tau=                       | τ                      |
+| =Omega=                     | Ω                      |
+| =omega=                     | ω                      |
+| =piv=                       | ϖ                      |
+| =varpi=                     | ϖ                      |
+| =partial=                   | ∂                      |
+| HEBREW                      |                        |
+| =alefsym=                   | ℵ                      |
+| =aleph=                     | ℵ                      |
+| =gimel=                     | ℷ                      |
+| =beth=                      | ℶ                      |
+| =dalet=                     | ℸ                      |
+| ICELANDIC                   |                        |
+| =ETH=                       | Ð                      |
+| =eth=                       | ð                      |
+| =THORN=                     | Þ                      |
+| =thorn=                     | þ                      |
+| /Punctuation/               |                        |
+| DOTS AND MARKS              |                        |
+| =dots=                      | ...                    |
+| =cdots=                     | ⋯                      |
+| =hellip=                    | ...                    |
+| =middot=                    | ·                      |
+| =iexcl=                     | ¡                      |
+| =iquest=                    | ¿                      |
+| DASH-LIKE                   |                        |
+| =shy=                       |                        |
+| =ndash=                     | --                     |
+| =mdash=                     | ---                    |
+| QUOTATIONS                  |                        |
+| =quot=                      | "                      |
+| =acute=                     | ´                      |
+| =ldquo=                     | “                      |
+| =rdquo=                     | ”                      |
+| =bdquo=                     | „                      |
+| =lsquo=                     | ‘                      |
+| =rsquo=                     | '                      |
+| =sbquo=                     | ‚                      |
+| =laquo=                     | «                      |
+| =raquo=                     | »                      |
+| =lsaquo=                    | ‹                      |
+| =rsaquo=                    | ›                      |
+| /Other/                     |                        |
+| MISC. (OFTEN USED)          |                        |
+| =circ=                      | ˆ                      |
+| =vert=                      | ​|                      |
+| =vbar=                      | ​|                      |
+| =brvbar=                    | ¦                      |
+| =S=                         | §                      |
+| =sect=                      | §                      |
+| =amp=                       | &                      |
+| =lt=                        | <                      |
+| =gt=                        | >                      |
+| =tilde=                     | ~                      |
+| =slash=                     | /                      |
+| =plus=                      | +                      |
+| =under=                     | _                      |
+| =equal=                     | =                      |
+| =asciicirc=                 | ^                      |
+| =dagger=                    | †                      |
+| =dag=                       | †                      |
+| =Dagger=                    | ‡                      |
+| =ddag=                      | ‡                      |
+| WHITESPACE                  |                        |
+| =nbsp=                      |                        |
+| =ensp=                      |                        |
+| =emsp=                      |                        |
+| =thinsp=                    |                        |
+| CURRENCY                    |                        |
+| =curren=                    | ¤                      |
+| =cent=                      | ¢                      |
+| =pound=                     | £                      |
+| =yen=                       | ¥                      |
+| =euro=                      | €                      |
+| =EUR=                       | €                      |
+| =dollar=                    | $                      |
+| =USD=                       | $                      |
+| PROPERTY MARKS              |                        |
+| =copy=                      | ©                      |
+| =reg=                       | ®                      |
+| =trade=                     | ™                      |
+| SCIENCE ET AL.              |                        |
+| =minus=                     | −                      |
+| =pm=                        | ±                      |
+| =plusmn=                    | ±                      |
+| =times=                     | ×                      |
+| =frasl=                     | ⁄                      |
+| =colon=                     | :                      |
+| =div=                       | ÷                      |
+| =frac12=                    | ½                      |
+| =frac14=                    | ¼                      |
+| =frac34=                    | ¾                      |
+| =permil=                    | ‰                      |
+| =sup1=                      | ¹                      |
+| =sup2=                      | ²                      |
+| =sup3=                      | ³                      |
+| =radic=                     | √                      |
+| =sum=                       | ∑                      |
+| =prod=                      | ∏                      |
+| =micro=                     | µ                      |
+| =macr=                      | ¯                      |
+| =deg=                       | °                      |
+| =prime=                     | ′                      |
+| =Prime=                     | ″                      |
+| =infin=                     | ∞                      |
+| =infty=                     | ∞                      |
+| =prop=                      | ∝                      |
+| =propto=                    | ∝                      |
+| =not=                       | ¬                      |
+| =neg=                       | ¬                      |
+| =land=                      | ∧                      |
+| =wedge=                     | ∧                      |
+| =lor=                       | ∨                      |
+| =vee=                       | ∨                      |
+| =cap=                       | ∩                      |
+| =cup=                       | ∪                      |
+| =smile=                     | ⌣                      |
+| =frown=                     | ⌢                      |
+| =int=                       | ∫                      |
+| =therefore=                 | ∴                      |
+| =there4=                    | ∴                      |
+| =because=                   | ∵                      |
+| =sim=                       | ∼                      |
+| =cong=                      | ≅                      |
+| =simeq=                     | ≅                      |
+| =asymp=                     | ≈                      |
+| =approx=                    | ≈                      |
+| =ne=                        | ≠                      |
+| =neq=                       | ≠                      |
+| =equiv=                     | ≡                      |
+| =triangleq=                 | ≜                      |
+| =le=                        | ≤                      |
+| =leq=                       | ≤                      |
+| =ge=                        | ≥                      |
+| =geq=                       | ≥                      |
+| =lessgtr=                   | ≶                      |
+| =lesseqgtr=                 | ⋚                      |
+| =ll=                        | ≪                      |
+| =Ll=                        | ⋘                      |
+| =lll=                       | ⋘                      |
+| =gg=                        | ≫                      |
+| =Gg=                        | ⋙                      |
+| =ggg=                       | ⋙                      |
+| =prec=                      | ≺                      |
+| =preceq=                    | ≼                      |
+| =preccurlyeq=               | ≼                      |
+| =succ=                      | ≻                      |
+| =succeq=                    | ≽                      |
+| =succcurlyeq=               | ≽                      |
+| =sub=                       | ⊂                      |
+| =subset=                    | ⊂                      |
+| =sup=                       | ⊃                      |
+| =supset=                    | ⊃                      |
+| =nsub=                      | ⊄                      |
+| =sube=                      | ⊆                      |
+| =nsup=                      | ⊅                      |
+| =supe=                      | ⊇                      |
+| =setminus=                  | ∖                      |
+| =forall=                    | ∀                      |
+| =exist=                     | ∃                      |
+| =exists=                    | ∃                      |
+| =nexist=                    | ∃                      |
+| =nexists=                   | ∃                      |
+| =empty=                     | ∅                      |
+| =emptyset=                  | ∅                      |
+| =isin=                      | ∈                      |
+| =in=                        | ∈                      |
+| =notin=                     | ∉                      |
+| =ni=                        | ∋                      |
+| =nabla=                     | ∇                      |
+| =ang=                       | ∠                      |
+| =angle=                     | ∠                      |
+| =perp=                      | ⊥                      |
+| =parallel=                  | ∥                      |
+| =sdot=                      | ⋅                      |
+| =cdot=                      | ⋅                      |
+| =lceil=                     | ⌈                      |
+| =rceil=                     | ⌉                      |
+| =lfloor=                    | ⌊                      |
+| =rfloor=                    | ⌋                      |
+| =lang=                      | ⟨                      |
+| =rang=                      | ⟩                      |
+| =langle=                    | ⟨                      |
+| =rangle=                    | ⟩                      |
+| =hbar=                      | ℏ                      |
+| =mho=                       | ℧                      |
+| ARROWS                      |                        |
+| =larr=                      | ←                      |
+| =leftarrow=                 | ←                      |
+| =gets=                      | ←                      |
+| =lArr=                      | ⇐                      |
+| =Leftarrow=                 | ⇐                      |
+| =uarr=                      | ↑                      |
+| =uparrow=                   | ↑                      |
+| =uArr=                      | ⇑                      |
+| =Uparrow=                   | ⇑                      |
+| =rarr=                      | →                      |
+| =to=                        | →                      |
+| =rightarrow=                | →                      |
+| =rArr=                      | ⇒                      |
+| =Rightarrow=                | ⇒                      |
+| =darr=                      | ↓                      |
+| =downarrow=                 | ↓                      |
+| =dArr=                      | ⇓                      |
+| =Downarrow=                 | ⇓                      |
+| =harr=                      | ↔                      |
+| =leftrightarrow=            | ↔                      |
+| =hArr=                      | ⇔                      |
+| =Leftrightarrow=            | ⇔                      |
+| =crarr=                     | ↵                      |
+| =hookleftarrow=             | ↵                      |
+| FUNCTION NAMES              |                        |
+| =arccos=                    | arccos                 |
+| =arcsin=                    | arcsin                 |
+| =arctan=                    | arctan                 |
+| =arg=                       | arg                    |
+| =cos=                       | cos                    |
+| =cosh=                      | cosh                   |
+| =cot=                       | cot                    |
+| =coth=                      | coth                   |
+| =csc=                       | csc                    |
+| =deg=                       | °                      |
+| =det=                       | det                    |
+| =dim=                       | dim                    |
+| =exp=                       | exp                    |
+| =gcd=                       | gcd                    |
+| =hom=                       | hom                    |
+| =inf=                       | inf                    |
+| =ker=                       | ker                    |
+| =lg=                        | lg                     |
+| =lim=                       | lim                    |
+| =liminf=                    | liminf                 |
+| =limsup=                    | limsup                 |
+| =ln=                        | ln                     |
+| =log=                       | log                    |
+| =max=                       | max                    |
+| =min=                       | min                    |
+| =Pr=                        | Pr                     |
+| =sec=                       | sec                    |
+| =sin=                       | sin                    |
+| =sinh=                      | sinh                   |
+| =sup=                       | ⊃                      |
+| =tan=                       | tan                    |
+| =tanh=                      | tanh                   |
+| SIGNS & SYMBOLS             |                        |
+| =bull=                      | •                      |
+| =bullet=                    | •                      |
+| =star=                      | ​*                      |
+| =lowast=                    | ∗                      |
+| =ast=                       | ∗                      |
+| =odot=                      | o                      |
+| =oplus=                     | ⊕                      |
+| =otimes=                    | ⊗                      |
+| =check=                     | ✓                      |
+| =checkmark=                 | ✓                      |
+| MISCELLANEOUS (SELDOM USED) |                        |
+| =para=                      | ¶                      |
+| =ordf=                      | ª                      |
+| =ordm=                      | º                      |
+| =cedil=                     | ¸                      |
+| =oline=                     | ‾                      |
+| =uml=                       | ¨                      |
+| =zwnj=                      |                        |
+| =zwj=                       |                        |
+| =lrm=                       |                        |
+| =rlm=                       |                        |
+| SMILIES                     |                        |
+| =smiley=                    | ☺                      |
+| =blacksmile=                | ☻                      |
+| =sad=                       | ☹                      |
+| =frowny=                    | ☹                      |
+| SUITS                       |                        |
+| =clubs=                     | ♣                      |
+| =clubsuit=                  | ♣                      |
+| =spades=                    | ♠                      |
+| =spadesuit=                 | ♠                      |
+| =hearts=                    | ♥                      |
+| =heartsuit=                 | ♥                      |
+| =diams=                     | ♦                      |
+| =diamondsuit=               | ♦                      |
+| =diamond=                   | ⋄                      |
+| =Diamond=                   | ⋄                      |
+| =loz=                       | ◊                      |
+| =_ =                        |  {}                    |
+| =_ =                        |   {}                   |
+| =_ =                        |    {}                  |
+| =_ =                        |     {}                 |
+| =_ =                        |      {}                |
+| =_ =                        |       {}               |
+| =_ =                        |        {}              |
+| =_ =                        |         {}             |
+| =_ =                        |          {}            |
+| =_ =                        |           {}           |
+| =_ =                        |            {}          |
+| =_ =                        |             {}         |
+| =_ =                        |              {}        |
+| =_ =                        |               {}       |
+| =_ =                        |                {}      |
+| =_ =                        |                 {}     |
+| =_ =                        |                  {}    |
+| =_ =                        |                   {}   |
+| =_ =                        |                    {}  |
+| =_ =                        |                     {} |
+
+<<footnotes>>
+** Footnotes:
+:PROPERTIES:
+:CLASS: footnotes
+:END:
+
+<<text-footnotes>>
+
+^{[[#fnr.1][1]]}
+
+In particular, the parser requires stars at column 0 to be quoted by a
+comma when they do not define a heading.
+
+^{[[#fnr.2][2]]}
+
+It also means that only headings and sections can be recognized just by
+looking at the beginning of the line. Planning lines and property
+drawers can be recognized by looking at one or two lines above.
+
+As a consequence, using =org-element-at-point= or =org-element-context=
+will move up to the parent heading, and parse top-down from there until
+context around the original location is found.
+
+^{[[#fnr.oiml][3]]}
+
+The default value of =org-inlinetask-min-level= is =15=.
+
+^{[[#fnr.otkw1][4]]}
+
+By default, =org-todo-keywords-1= only contains =TODO= and =DONE=,
+however =org-todo-keywords-1= is set on a per-document basis.
+
+^{[[#fnr.5][5]]}
+
+Implementation note: todo keywords cannot be hardcoded in a tokenizer,
+the tokenizer must be configurable at runtime so that in-file todo
+keywords are properly interpreted.
+
+^{[[#fnr.oepkw][6]]}
+
+By default, =org-element-parsed-keywords= contains =CAPTION=.
+
+^{[[#fnr.7][7]]}
+
+A common abbreviation for S-expression
+
+^{[[#fnr.oeakw][8]]}
+
+By default, =org-element-affiliated-keywords= contains =CAPTION=,
+=DATA=, =HEADER=, =NAME=, =PLOT=, and =RESULTS=.
+
+^{[[#fnr.oedkw][9]]}
+
+By default, =org-element-dual-keywords= contains =CAPTION= and
+=RESULTS=.
+
+^{[[#fnr.oe][10]]}
+
+See the [[#Entities_List][appendix]] for a list of entities.
+
+^{[[#fnr.olp][11]]}
+
+By default, =org-link-parameters= defines links of type =shell=, =news=,
+=mailto=, =https=, =http=, =ftp=, =help=, =file=, and =elisp=.
+
+^{[[#fnr.12][12]]}
+
+This overall pattern may be matched with the following regexp:
+=(?:[^ \t\n\[\]<>()]|\((?:[^ \t\n\[\]<>()]|\([^ \t\n\[\]<>()]*\))*\))+(?:[^[:punct:] \t\n]|\/|\((?:[^ \t\n\[\]<>()]|\([^ \t\n\[\]<>()]*\))*\))=
+
+^{[[#fnr.13][13]]}
+
+This is not compatible with RFC 3986, which requires to ignore them
+altogether. However, doing so would require users to encode spaces on
+the fly when writing links (e.g., insert =[[shell:ls%20*.org]]= instead
+of [[shell:ls%20*.org]], which defeats Org's focus on simplicity.)
+
+^{[[#fnr.14][14]]}
+
+In =org-element.el= plain text objects are abstracted away to strings
+for performance reasons.
+
+<<postamble>>
+
+<<license>>
+Documentation from the orgmode.org/worg/ website (either in its HTML
+format or in its Org format) is licensed under the
+[[http://www.gnu.org/copyleft/fdl.html][GNU Free Documentation License
+version 1.3]] or later. The code examples and css stylesheets are
+licensed under the [[http://www.gnu.org/licenses/gpl.html][GNU General
+Public License v3]] or later.

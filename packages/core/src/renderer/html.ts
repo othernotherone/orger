@@ -295,6 +295,22 @@ export class HtmlRenderer extends BaseRenderer {
   }
 
   /**
+   * Render a strikethrough node (alternative naming)
+   * 
+   * @param node The strikethrough node
+   * @param options Rendering options
+   * @returns The rendered HTML
+   */
+  protected renderStrikethrough(node: Node, options: HtmlRenderOptions): string {
+    const className = options.addTypeClasses ? ' class="org-strikethrough"' : '';
+    const children = node.children && node.children.length > 0
+      ? node.children.map(child => this.renderNode(child, options)).join('')
+      : '';
+    
+    return `<del${className}>${children}</del>`;
+  }
+
+  /**
    * Render a code node
    * 
    * @param node The code node
@@ -505,19 +521,20 @@ export class HtmlRenderer extends BaseRenderer {
   }
 
   /**
-   * Render a node
+   * Render a node to HTML
    * 
    * @param node The node to render
    * @param options Rendering options
    * @returns The rendered HTML
    */
   public renderNode(node: Node, options: HtmlRenderOptions = {}): string {
+    if (!node) return '';
+    
     // Check for custom renderer
     if (options.renderers && options.renderers[node.type]) {
       return options.renderers[node.type](node, options);
     }
-
-    // Use the appropriate renderer based on node type
+    
     switch (node.type) {
       case 'document':
         return this.renderDocument(node as Document, options);
@@ -535,8 +552,14 @@ export class HtmlRenderer extends BaseRenderer {
         return this.renderUnderline(node, options);
       case 'strike_through':
         return this.renderStrike_through(node, options);
+      case 'strikethrough':
+        return this.renderStrikethrough(node, options);
       case 'code':
         return this.renderCode(node, options);
+      case 'verbatim':
+        return this.renderVerbatim(node, options);
+      case 'link':
+        return this.renderLink(node, options);
       case 'list':
         return this.renderList(node, options);
       case 'list_item':
@@ -547,9 +570,24 @@ export class HtmlRenderer extends BaseRenderer {
         return this.renderTable_row(node, options);
       case 'table_cell':
         return this.renderTable_cell(node, options);
+      case 'horizontal_rule':
+        return this.renderHorizontal_rule(node, options);
       default:
+        console.warn(`Unknown node type: ${node.type}`);
         return '';
     }
+  }
+
+  /**
+   * Render a verbatim node
+   * 
+   * @param node The verbatim node
+   * @param options Rendering options
+   * @returns The rendered HTML
+   */
+  protected renderVerbatim(node: Node, options: HtmlRenderOptions): string {
+    const className = options.addTypeClasses ? ' class="org-verbatim"' : '';
+    return `<code${className}>${this.escapeHtml(node.value || '')}</code>`;
   }
 }
 

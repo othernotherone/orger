@@ -41,6 +41,18 @@ export class OrgRenderer {
         return this.renderList(node, options);
       case 'list_item':
         return this.renderListItem(node, options);
+      case 'bold':
+        return this.renderBold(node, options);
+      case 'italic':
+        return this.renderItalic(node, options);
+      case 'underline':
+        return this.renderUnderline(node, options);
+      case 'strikethrough':
+        return this.renderStrikethrough(node, options);
+      case 'code':
+        return this.renderCode(node, options);
+      case 'verbatim':
+        return this.renderVerbatim(node, options);
       default:
         return '';
     }
@@ -172,5 +184,91 @@ export class OrgRenderer {
     }
     
     return result;
+  }
+
+  /**
+   * Render a bold node to Org Mode format
+   * 
+   * @param node The bold node
+   * @param options Render options
+   * @returns The rendered bold text
+   */
+  private renderBold(node: Node, options: RenderOptions = {}): string {
+    if (!node.children || node.children.length === 0) {
+      return '';
+    }
+    
+    const content = node.children.map(child => this.renderNode(child, options)).join('');
+    return `*${content}*`;
+  }
+
+  /**
+   * Render an italic node to Org Mode format
+   * 
+   * @param node The italic node
+   * @param options Render options
+   * @returns The rendered italic text
+   */
+  private renderItalic(node: Node, options: RenderOptions = {}): string {
+    if (!node.children || node.children.length === 0) {
+      return '';
+    }
+    
+    const content = node.children.map(child => this.renderNode(child, options)).join('');
+    return `/${content}/`;
+  }
+
+  /**
+   * Render an underline node to Org Mode format
+   * 
+   * @param node The underline node
+   * @param options Render options
+   * @returns The rendered underlined text
+   */
+  private renderUnderline(node: Node, options: RenderOptions = {}): string {
+    if (!node.children || node.children.length === 0) {
+      return '';
+    }
+    
+    const content = node.children.map(child => this.renderNode(child, options)).join('');
+    return `_${content}_`;
+  }
+
+  /**
+   * Render a strikethrough node to Org Mode format
+   * 
+   * @param node The strikethrough node
+   * @param options Render options
+   * @returns The rendered strikethrough text
+   */
+  private renderStrikethrough(node: Node, options: RenderOptions = {}): string {
+    if (!node.children || node.children.length === 0) {
+      return '';
+    }
+    
+    const content = node.children.map(child => this.renderNode(child, options)).join('');
+    return `+${content}+`;
+  }
+
+  /**
+   * Render a code node to Org Mode format
+   * 
+   * @param node The code node
+   * @param options Render options
+   * @returns The rendered code
+   */
+  private renderCode(node: Node, options: RenderOptions = {}): string {
+    return `~${node.value || ''}~`;
+  }
+
+  /**
+   * Render a verbatim node to Org Mode format
+   * 
+   * @param node The verbatim node
+   * @param options Render options
+   * @returns The rendered verbatim text
+   */
+  private renderVerbatim(node: Node, options: RenderOptions = {}): string {
+    return `=${node.value || ''}=`;
   }
 } 

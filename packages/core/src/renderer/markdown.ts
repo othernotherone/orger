@@ -269,6 +269,21 @@ export class MarkdownRenderer extends BaseRenderer {
   }
 
   /**
+   * Render a strikethrough node (alternative naming)
+   * 
+   * @param node The strikethrough node
+   * @param options Rendering options
+   * @returns The rendered Markdown
+   */
+  protected renderStrikethrough(node: Node, options: MarkdownRenderOptions): string {
+    const children = node.children && node.children.length > 0
+      ? node.children.map(child => this.renderNode(child, options)).join('')
+      : '';
+    
+    return `~~${children}~~`;
+  }
+
+  /**
    * Render a code node
    * 
    * @param node The code node
