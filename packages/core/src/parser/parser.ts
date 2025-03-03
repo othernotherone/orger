@@ -62,6 +62,13 @@ export class Parser {
           };
         }
         
+        function createBold(content) {
+          return {
+            type: 'bold',
+            children: [createText(content)]
+          };
+        }
+        
         function createList(items, ordered) {
           return {
             type: 'list',
@@ -217,27 +224,11 @@ export class Parser {
             return null;
           }
       
-      whitespace
-        = [ \\t]+
-      
-      newline
-        = "\\r\\n" / "\\n" / "\\r"
-        
       asterisk = "*"
-
-      checkbox
-        = "[" whitespace? "]" whitespace {
-            return false;
-          }
-        / "[" ("X" / "x") "]" whitespace {
-            return true;
-          }
-        / "[" "-" "]" whitespace {
-            return null; // Partial/in progress
-          }
+      whitespace = [ \\t]+
+      newline = "\\n" / "\\r\\n" / "\\r"
     `;
     
-    // Create parser
     try {
       this.parser = pegjs.generate(this.grammar);
     } catch (error) {
@@ -247,31 +238,18 @@ export class Parser {
   }
 
   /**
-   * Parse Org Mode text
+   * Parse an Org Mode document
    * 
-   * @param text The text to parse
+   * @param content The content to parse
    * @returns The parsed document
    */
-  public parse(text: string): Document {
+  public parse(content: string): Document {
     try {
-      // Pre-process text to handle strikethrough markup
-      // This ensures +strikethrough+ isn't confused with list markers
-      const processedText = this.preProcessStrikethrough(text);
+      // Parse the content
+      const ast = this.parser.parse(content);
       
-      // Parse the text
-      const ast = this.parser.parse(processedText);
-      
-      // Create a document from the AST
-      const document = new Document();
-      
-      // Add children
-      if (ast.children) {
-        ast.children.forEach((child: any) => {
-          if (child) { // Skip null values
-            document.appendChild(this.createNode(child));
-          }
-        });
-      }
+      // Convert the AST to a Document
+      const document = this.convertToDocument(ast);
       
       // Process text markup
       this.processTextMarkup(document);
@@ -282,49 +260,98 @@ export class Parser {
       return document;
     } catch (error) {
       console.error('Error parsing document:', error);
-      throw new Error(`Failed to parse document: ${(error as Error).message}`);
+      throw error;
     }
   }
 
   /**
-   * Pre-process text to handle strikethrough markup
-   * This temporarily replaces +strikethrough+ with a special marker
-   * to prevent it from being confused with list markers
+   * Convert the AST to a Document
    * 
-   * @param text The text to pre-process
-   * @returns The pre-processed text
+   * @param ast The AST
+   * @returns The Document
    */
-  private preProcessStrikethrough(text: string): string {
-    // Replace +strikethrough+ with a temporary marker
-    // Only match when there are no spaces between the + signs
-    return text.replace(/\+([^\s+][^+\n]*[^\s+])\+/g, '§§STRIKETHROUGH§§$1§§ENDSTRIKETHROUGH§§');
-  }
-
-  /**
-   * Create a node from an AST node
-   * 
-   * @param astNode The AST node
-   * @returns The node
-   */
-  private createNode(astNode: any): Node {
-    if (!astNode || !astNode.type) {
-      throw new Error('Invalid AST node: missing type');
+  private convertToDocument(ast: any): Document {
+    // Create the document
+    const document = new Document();
+    
+    // Add properties
+    if (ast.properties) {
+      Object.keys(ast.properties).forEach(key => {
+        document[key] = ast.properties[key];
+      });
     }
-    
-    const node = new Node(astNode.type);
-    
-    // Copy properties
-    Object.keys(astNode).forEach(key => {
-      if (key !== 'type' && key !== 'children') {
-        node[key] = astNode[key];
-      }
-    });
     
     // Add children
-    if (astNode.children) {
-      astNode.children.forEach((child: any) => {
-        if (child) { // Skip null values
-          node.appendChild(this.createNode(child));
+    if (ast.children && Array.isArray(ast.children)) {
+      ast.children.forEach((child: any) => {
+        const node = this.convertToNode(child);
+        if (node) {
+          document.appendChild(node);
+        }
+      });
+    }
+    
+    return document;
+  }
+
+  /**
+   * Convert an AST node to a Node
+   * 
+   * @param ast The AST node
+   * @returns The Node
+   */
+  private convertToNode(ast: any): Node | null {
+    if (!ast) return null;
+    
+    // Create the node
+    const node = new Node(ast.type);
+    
+    // Add properties
+    if (ast.properties) {
+      Object.keys(ast.properties).forEach(key => {
+        node[key] = ast.properties[key];
+      });
+    }
+    
+    // Add specific properties based on node type
+    switch (ast.type) {
+      case 'heading':
+        node.level = ast.level;
+        node.title = ast.title;
+        if (ast.todoKeyword) {
+          node.todoKeyword = ast.todoKeyword;
+        }
+        break;
+      case 'list':
+        node.listType = ast.listType;
+        break;
+      case 'list_item':
+        node.ordered = ast.ordered;
+        break;
+      case 'text':
+        node.value = ast.value;
+        break;
+      case 'bold':
+      case 'italic':
+      case 'underline':
+      case 'strikethrough':
+      case 'code':
+      case 'verbatim':
+        // These nodes will have their content as children
+        break;
+      default:
+        // Handle other node types
+        if (ast.value !== undefined) {
+          node.value = ast.value;
+        }
+    }
+    
+    // Add children
+    if (ast.children && Array.isArray(ast.children)) {
+      ast.children.forEach((child: any) => {
+        const childNode = this.convertToNode(child);
+        if (childNode) {
+          node.appendChild(childNode);
         }
       });
     }
@@ -333,29 +360,37 @@ export class Parser {
   }
 
   /**
-   * Process text markup in the document
+   * Process text markup in a document
    * 
    * @param node The node to process
    */
   private processTextMarkup(node: Node): void {
     // Process text nodes
-    if (node.type === 'text') {
-      const value = node.value as string;
-      if (value && typeof value === 'string') {
-        const parent = node.parent;
-        if (parent && parent.children) {
-          // Replace the text node with processed nodes
-          const processedNodes = this.processTextMarkupInString(value);
-          if (processedNodes.length > 0) {
-            const index = parent.children.indexOf(node);
-            if (index !== -1) {
-              // Remove the original node
-              parent.children.splice(index, 1);
+    if (node.type === 'paragraph') {
+      // Process each child
+      if (node.children && node.children.length > 0) {
+        for (let i = 0; i < node.children.length; i++) {
+          const child = node.children[i];
+          
+          if (child.type === 'text') {
+            const value = child.value as string;
+            if (value) {
+              const parent = node;
               
-              // Add the processed nodes
-              for (let i = 0; i < processedNodes.length; i++) {
-                if (parent.children) {
-                  parent.children.splice(index + i, 0, processedNodes[i]);
+              // Process the text markup
+              const processedNodes = this.processTextMarkupInString(value);
+              if (processedNodes.length > 0 && parent.children) {
+                const index = parent.children.indexOf(child);
+                if (index !== -1) {
+                  // Remove the original node
+                  parent.children.splice(index, 1);
+                  
+                  // Add the processed nodes
+                  for (let i = 0; i < processedNodes.length; i++) {
+                    if (parent.children) {
+                      parent.children.splice(index + i, 0, processedNodes[i]);
+                    }
+                  }
                 }
               }
             }
@@ -476,7 +511,7 @@ export class Parser {
       }
       
       let lastIndex = 0;
-      const italicRegex = /\/([^\/\n]+)\//g;
+      const italicRegex = /\/([^/\n]+)\//g;
       let match;
       const segments: Node[] = [];
       
@@ -591,7 +626,7 @@ export class Parser {
       
       let lastIndex = 0;
       // Look for our special marker or the original +text+ pattern
-      const strikethroughRegex = /§§STRIKETHROUGH§§([^§]+)§§ENDSTRIKETHROUGH§§|\+([^+\n]+)\+/g;
+      const strikethroughRegex = /\+([^+\n]+)\+/g;
       let match;
       const segments: Node[] = [];
       
@@ -604,7 +639,7 @@ export class Parser {
         // Add the strikethrough node
         const strikethroughNode = new Node('strikethrough');
         // Use the first capturing group that matched (either the special marker or the original pattern)
-        const content = match[1] || match[2];
+        const content = match[1];
         const contentNode = new Node('text', { value: content });
         strikethroughNode.appendChild(contentNode);
         segments.push(strikethroughNode);
@@ -744,24 +779,19 @@ export class Parser {
    * @param document The document
    */
   private applyPlugins(_document: Document): void {
-    // Apply tokenizers
+    // Apply plugins
     this.plugins.forEach(plugin => {
-      if (plugin.tokenizers) {
+      // Apply tokenizers
+      if (plugin.tokenizers && Array.isArray(plugin.tokenizers)) {
         plugin.tokenizers.forEach(_tokenizer => {
-          // Apply tokenizer to document
-          // This would involve traversing the document and applying the tokenizer
-          // to text nodes that match the pattern
+          // Apply tokenizer logic here
         });
       }
-    });
-    
-    // Apply processors
-    this.plugins.forEach(plugin => {
-      if (plugin.processors) {
+      
+      // Apply processors
+      if (plugin.processors && Array.isArray(plugin.processors)) {
         plugin.processors.forEach(_processor => {
-          // Apply processor to document
-          // This would involve traversing the document and applying the processor
-          // to nodes of the specified type
+          // Apply processor logic here
         });
       }
     });

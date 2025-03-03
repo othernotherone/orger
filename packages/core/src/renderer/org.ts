@@ -36,11 +36,11 @@ export class OrgRenderer {
       case 'paragraph':
         return this.renderParagraph(node, options);
       case 'text':
-        return this.renderText(node, options);
+        return this.renderText(node);
       case 'list':
         return this.renderList(node, options);
       case 'list_item':
-        return this.renderListItem(node, options);
+        return this.renderListItem(node, options, 0);
       case 'bold':
         return this.renderBold(node, options);
       case 'italic':
@@ -50,9 +50,15 @@ export class OrgRenderer {
       case 'strikethrough':
         return this.renderStrikethrough(node, options);
       case 'code':
-        return this.renderCode(node, options);
+        return this.renderCode(node);
       case 'verbatim':
-        return this.renderVerbatim(node, options);
+        return this.renderVerbatim(node);
+      case 'table':
+        return this.renderTable(node);
+      case 'table_row':
+        return this.renderTableRow(node);
+      case 'table_cell':
+        return this.renderTableCell(node);
       default:
         return '';
     }
@@ -112,10 +118,9 @@ export class OrgRenderer {
    * Render text to Org Mode format
    * 
    * @param node The text node
-   * @param options Render options
    * @returns The rendered text
    */
-  private renderText(node: Node, options: RenderOptions = {}): string {
+  private renderText(node: Node): string {
     return node.value || '';
   }
 
@@ -143,7 +148,7 @@ export class OrgRenderer {
    * @param level The indentation level
    * @returns The rendered list item
    */
-  private renderListItem(node: Node, options: RenderOptions = {}, level: number = 0): string {
+  private renderListItem(node: Node, options: RenderOptions = {}, level = 0): string {
     if (!node.children || node.children.length === 0) {
       return '';
     }
@@ -254,10 +259,9 @@ export class OrgRenderer {
    * Render a code node to Org Mode format
    * 
    * @param node The code node
-   * @param options Render options
    * @returns The rendered code
    */
-  private renderCode(node: Node, options: RenderOptions = {}): string {
+  private renderCode(node: Node): string {
     return `~${node.value || ''}~`;
   }
 
@@ -265,10 +269,72 @@ export class OrgRenderer {
    * Render a verbatim node to Org Mode format
    * 
    * @param node The verbatim node
-   * @param options Render options
    * @returns The rendered verbatim text
    */
-  private renderVerbatim(node: Node, options: RenderOptions = {}): string {
+  private renderVerbatim(node: Node): string {
     return `=${node.value || ''}=`;
+  }
+
+  /**
+   * Render a table to Org Mode format
+   * 
+   * @param node The table node
+   * @returns The rendered table
+   */
+  private renderTable(node: Node): string {
+    if (!node.children || node.children.length === 0) {
+      return '';
+    }
+    
+    // Render each row
+    const rows = node.children.map((row, index) => {
+      const renderedRow = this.renderTableRow(row);
+      
+      // Add a separator after the header row
+      if (index === 0 && row.isHeader) {
+        // Calculate the number of cells
+        const cellCount = row.children ? row.children.length : 0;
+        // Create a separator row with the right number of cells
+        const separator = '|' + '-'.repeat(cellCount * 3) + '|';
+        return renderedRow + separator + '\n';
+      }
+      
+      return renderedRow;
+    }).join('');
+    
+    return rows + '\n';
+  }
+
+  /**
+   * Render a table row to Org Mode format
+   * 
+   * @param node The table row node
+   * @returns The rendered table row
+   */
+  private renderTableRow(node: Node): string {
+    if (!node.children || node.children.length === 0) {
+      return '';
+    }
+    
+    // Render each cell
+    const cells = node.children.map(cell => this.renderTableCell(cell)).join('');
+    
+    return '|' + cells + '\n';
+  }
+
+  /**
+   * Render a table cell to Org Mode format
+   * 
+   * @param node The table cell node
+   * @returns The rendered table cell
+   */
+  private renderTableCell(node: Node): string {
+    if (!node.children || node.children.length === 0) {
+      return ' | ';
+    }
+    
+    const content = node.children.map(child => this.renderNode(child)).join('');
+    
+    return ` ${content} |`;
   }
 } 
